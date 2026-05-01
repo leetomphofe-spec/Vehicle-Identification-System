@@ -14,23 +14,23 @@
     <Label text="Add Police Report" styleClass="section-title"/>
 
     <GridPane hgap="10" vgap="12">
-        <Label text="Vehicle ID"    GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <Label text="Vehicle ID" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="vehicleIdField" promptText="Vehicle ID"
                    GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
 
-        <Label text="Report Date"   GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <Label text="Report Date" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="dateField" promptText="YYYY-MM-DD"
                    GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Report Type"   GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <Label text="Report Type" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
         <ComboBox fx:id="typeCombo" GridPane.rowIndex="2" GridPane.columnIndex="1"
                   prefWidth="220" styleClass="combo-vis"/>
 
-        <Label text="Description"   GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <Label text="Description" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextArea fx:id="descField" promptText="Details..."
                   GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
 
-        <Label text="Officer Name"  GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <Label text="Officer Name" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="officerField" promptText="Officer full name"
                    GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
     </GridPane>

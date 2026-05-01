@@ -8,6 +8,20 @@ import java.sql.*;
 
 public class VehicleDAO {
 
+    // Check if customer exists
+    public boolean customerExists(int customerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM Customer WHERE customer_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
     // READ - Get all vehicles
     public ObservableList<Vehicle> getAllVehicles() throws SQLException {
         ObservableList<Vehicle> list = FXCollections.observableArrayList();
@@ -75,7 +89,7 @@ public class VehicleDAO {
         return null;
     }
 
-    // READ - Get vehicle by ID (ADD THIS METHOD)
+    // READ - Get vehicle by ID
     public Vehicle getVehicleById(int id) throws SQLException {
         String sql = "SELECT v.*, c.name as owner_name " +
                 "FROM Vehicle v LEFT JOIN Customer c ON v.owner_id = c.customer_id " +
@@ -109,8 +123,13 @@ public class VehicleDAO {
         return null;
     }
 
-    // CREATE - Add vehicle
+    // CREATE - Add vehicle with validation
     public void addVehicle(Vehicle v) throws SQLException {
+        // First check if owner exists
+        if (!customerExists(v.getOwnerId())) {
+            throw new SQLException("Customer with ID " + v.getOwnerId() + " does not exist. Please add the customer first.");
+        }
+
         String sql = "INSERT INTO Vehicle (registration_number, make, model, year, owner_id, description, color, status, primary_image_path, engine, transmission, fuel_type, mileage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

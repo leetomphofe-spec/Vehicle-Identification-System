@@ -21,37 +21,29 @@ public class VehicleDetailPopup {
 
     public void show() {
         try {
-            // Load the FXML file - get the root directly
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/vis/fxml/VehicleDetailPopup.fxml")
-            );
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/VehicleDetailPopup.fxml"));
             Parent root = loader.load();
 
-            // Create scene with the root
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(
-                    getClass().getResource("/com/vis/css/styles.css").toExternalForm()
-            );
+            // Full screen size - 1000x700
+            Scene scene = new Scene(root, 500, 300);
+            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
-            // Get the controller and set data
             VehicleDetailPopupController controller = loader.getController();
             controller.setVehicle(vehicle);
             controller.setUserRole(userRole);
             controller.setOnDataChanged(onDataChanged);
 
-            // Create and configure the stage
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Vehicle Details - " + vehicle.getRegistrationNumber());
             stage.setScene(scene);
-            stage.setMinWidth(400);
-            stage.setMinHeight(250);
+            stage.setMinWidth(900);
+            stage.setMinHeight(650);
+            stage.setMaximized(false);
             controller.setStage(stage);
 
-            // Load vehicle data into the controller
             controller.loadVehicleData();
 
-            // Show the popup
             stage.showAndWait();
 
         } catch (Exception e) {

@@ -29,6 +29,6 @@
                 styleClass="primary-btn" maxWidth="Infinity"/>
     </VBox>
 
-    <Label text="Vehicle Identification System © 2026 | Limkokwing University Lesotho"
+    <Label text="Vehicle Identification System 2026 | Limkokwing University Lesotho"
            styleClass="footer-label"/>
 </VBox>

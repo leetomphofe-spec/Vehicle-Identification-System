@@ -114,16 +114,18 @@ public class VehicleDetailPopupController {
     @FXML
     public void initialize() {
         setupTables();
-        setupRoleBasedVisibility();
     }
 
     public void loadVehicleData() {
         if (vehicle == null) return;
 
+        System.out.println("Loading vehicle data for ID: " + vehicle.getId() + " | Role: " + userRole);
+
         // Header
         regLabel.setText(vehicle.getRegistrationNumber());
-        statusBadge.setText(vehicle.getStatus() != null ? vehicle.getStatus() : "Active");
-        statusBadge.setStyle(getStatusStyle(vehicle.getStatus()));
+        String status = vehicle.getStatus() != null ? vehicle.getStatus() : "Active";
+        statusBadge.setText(status);
+        statusBadge.setStyle(getStatusStyle(status));
         yearMakeModelLabel.setText(vehicle.getYear() + " " + vehicle.getMake() + " " + vehicle.getModel());
 
         // Description
@@ -136,24 +138,118 @@ public class VehicleDetailPopupController {
         loadPrimaryImage();
         loadThumbnails();
 
-        // Technical Specs
-        engineValue.setText((vehicle.getEngine() != null && !vehicle.getEngine().isEmpty()) ? vehicle.getEngine() : "Not specified");
-        transmissionValue.setText((vehicle.getTransmission() != null && !vehicle.getTransmission().isEmpty()) ? vehicle.getTransmission() : "Not specified");
-        fuelTypeValue.setText((vehicle.getFuelType() != null && !vehicle.getFuelType().isEmpty()) ? vehicle.getFuelType() : "Not specified");
-        mileageValue.setText(vehicle.getMileage() > 0 ? String.format("%,d km", vehicle.getMileage()) : "Not recorded");
+        // Technical Specs - Display values
+        String engine = (vehicle.getEngine() != null && !vehicle.getEngine().isEmpty()) ? vehicle.getEngine() : "Not specified";
+        String transmission = (vehicle.getTransmission() != null && !vehicle.getTransmission().isEmpty()) ? vehicle.getTransmission() : "Not specified";
+        String fuelType = (vehicle.getFuelType() != null && !vehicle.getFuelType().isEmpty()) ? vehicle.getFuelType() : "Not specified";
+        String mileage = vehicle.getMileage() > 0 ? String.format("%,d km", vehicle.getMileage()) : "Not recorded";
 
+        engineValue.setText(engine);
+        transmissionValue.setText(transmission);
+        fuelTypeValue.setText(fuelType);
+        mileageValue.setText(mileage);
+
+        // Technical Specs - Edit fields
         engineField.setText(vehicle.getEngine());
         transmissionField.setText(vehicle.getTransmission());
         fuelTypeField.setText(vehicle.getFuelType());
         mileageField.setText(vehicle.getMileage() > 0 ? String.valueOf(vehicle.getMileage()) : "");
 
+        // Apply role-based access controls
+        applyRoleBasedAccess();
+
         // Load all data
+        loadBasicInfo();
         loadQuickStats();
         loadServiceHistory();
         loadViolations();
         loadPoliceReports();
         loadInsuranceInfo();
-        loadBasicInfo();
+
+        System.out.println("Vehicle data loaded successfully");
+    }
+
+    private void applyRoleBasedAccess() {
+        System.out.println("Applying popup role-based access for: " + userRole);
+
+        boolean isAdmin = "ADMIN".equals(userRole);
+        boolean isPolice = "POLICE".equals(userRole);
+        boolean isUser = "USER".equals(userRole);
+
+        // ADMIN - Full access (can edit everything)
+        if (isAdmin) {
+            // Enable all edit buttons
+            if (saveDescBtn != null) saveDescBtn.setVisible(true);
+            if (saveSpecsBtn != null) saveSpecsBtn.setVisible(true);
+            if (uploadPhotoBtn != null) uploadPhotoBtn.setVisible(true);
+            if (editBtn != null) editBtn.setVisible(true);
+            if (deleteBtn != null) deleteBtn.setVisible(true);
+            if (qrBtn != null) qrBtn.setVisible(true);
+            if (printBtn != null) printBtn.setVisible(true);
+
+            // Enable edit fields
+            if (descriptionTextArea != null) descriptionTextArea.setEditable(true);
+            if (engineField != null) engineField.setEditable(true);
+            if (transmissionField != null) transmissionField.setEditable(true);
+            if (fuelTypeField != null) fuelTypeField.setEditable(true);
+            if (mileageField != null) mileageField.setEditable(true);
+        }
+
+        // POLICE - Read-only + QR Code + Print
+        else if (isPolice) {
+            // Hide all edit/delete buttons
+            if (saveDescBtn != null) saveDescBtn.setVisible(false);
+            if (saveSpecsBtn != null) saveSpecsBtn.setVisible(false);
+            if (uploadPhotoBtn != null) uploadPhotoBtn.setVisible(false);
+            if (editBtn != null) editBtn.setVisible(false);
+            if (deleteBtn != null) deleteBtn.setVisible(false);
+
+            // Show only QR and Print for POLICE
+            if (qrBtn != null) qrBtn.setVisible(true);
+            if (printBtn != null) printBtn.setVisible(true);
+
+            // Disable edit fields
+            if (descriptionTextArea != null) descriptionTextArea.setEditable(false);
+            if (engineField != null) engineField.setEditable(false);
+            if (transmissionField != null) transmissionField.setEditable(false);
+            if (fuelTypeField != null) fuelTypeField.setEditable(false);
+            if (mileageField != null) mileageField.setEditable(false);
+
+            // Style read-only fields
+            String readOnlyStyle = "-fx-background-color: #1e293b; -fx-text-fill: #94a3b8; -fx-border-color: #334155; -fx-opacity: 1;";
+            if (engineField != null) engineField.setStyle(readOnlyStyle);
+            if (transmissionField != null) transmissionField.setStyle(readOnlyStyle);
+            if (fuelTypeField != null) fuelTypeField.setStyle(readOnlyStyle);
+            if (mileageField != null) mileageField.setStyle(readOnlyStyle);
+            if (descriptionTextArea != null) descriptionTextArea.setStyle(readOnlyStyle);
+        }
+
+        // USER - Read-only (no action buttons at all)
+        else if (isUser) {
+            // Hide ALL action buttons
+            if (saveDescBtn != null) saveDescBtn.setVisible(false);
+            if (saveSpecsBtn != null) saveSpecsBtn.setVisible(false);
+            if (uploadPhotoBtn != null) uploadPhotoBtn.setVisible(false);
+            if (editBtn != null) editBtn.setVisible(false);
+            if (deleteBtn != null) deleteBtn.setVisible(false);
+            if (qrBtn != null) qrBtn.setVisible(false);
+            if (printBtn != null) printBtn.setVisible(false);
+
+            // Disable edit fields
+            if (descriptionTextArea != null) descriptionTextArea.setEditable(false);
+            if (engineField != null) engineField.setEditable(false);
+            if (transmissionField != null) transmissionField.setEditable(false);
+            if (fuelTypeField != null) fuelTypeField.setEditable(false);
+            if (mileageField != null) mileageField.setEditable(false);
+
+            // Style read-only fields
+            String readOnlyStyle = "-fx-background-color: #1e293b; -fx-text-fill: #94a3b8; -fx-border-color: #334155; -fx-opacity: 1;";
+            if (engineField != null) engineField.setStyle(readOnlyStyle);
+            if (transmissionField != null) transmissionField.setStyle(readOnlyStyle);
+            if (fuelTypeField != null) fuelTypeField.setStyle(readOnlyStyle);
+            if (mileageField != null) mileageField.setStyle(readOnlyStyle);
+            if (descriptionTextArea != null) descriptionTextArea.setStyle(readOnlyStyle);
+        }
     }
 
     private void setupTables() {
@@ -194,26 +290,6 @@ public class VehicleDetailPopupController {
         });
     }
 
-    private void setupRoleBasedVisibility() {
-        if (userRole == null) return;
-        boolean canEdit = userRole.equals("ADMIN") || userRole.equals("CUSTOMER");
-        boolean isAdmin = userRole.equals("ADMIN");
-        boolean isPolice = userRole.equals("POLICE");
-
-        if (saveDescBtn != null) saveDescBtn.setVisible(canEdit);
-        if (saveSpecsBtn != null) saveSpecsBtn.setVisible(canEdit);
-        if (uploadPhotoBtn != null) uploadPhotoBtn.setVisible(canEdit);
-        if (editBtn != null) editBtn.setVisible(canEdit);
-        if (deleteBtn != null) deleteBtn.setVisible(isAdmin);
-        if (qrBtn != null) qrBtn.setVisible(isPolice);
-
-        if (descriptionTextArea != null) descriptionTextArea.setEditable(canEdit);
-        if (engineField != null) engineField.setEditable(canEdit);
-        if (transmissionField != null) transmissionField.setEditable(canEdit);
-        if (fuelTypeField != null) fuelTypeField.setEditable(canEdit);
-        if (mileageField != null) mileageField.setEditable(canEdit);
-    }
-
     private void loadPrimaryImage() {
         if (vehicle.getPrimaryImagePath() != null && !vehicle.getPrimaryImagePath().isEmpty()) {
             try {
@@ -251,14 +327,15 @@ public class VehicleDetailPopupController {
                     }
                 } catch (Exception e) {}
                 if (img.getIsPrimary()) {
-                    Label primaryBadge = new Label("★ PRIMARY");
+                    Label primaryBadge = new Label("PRIMARY");
                     primaryBadge.setStyle("-fx-text-fill: #fbbf24; -fx-font-size: 9px; -fx-font-weight: bold;");
                     thumbBox.getChildren().add(primaryBadge);
                 }
                 thumbBox.getChildren().add(thumb);
+                final String imagePath = img.getImagePath();
                 thumbBox.setOnMouseClicked(e -> {
                     try {
-                        File fullFile = new File(img.getImagePath());
+                        File fullFile = new File(imagePath);
                         if (fullFile.exists()) {
                             Image fullImg = new Image(fullFile.toURI().toString(), 320, 240, true, true);
                             primaryImageView.setImage(fullImg);
@@ -270,6 +347,29 @@ public class VehicleDetailPopupController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loadBasicInfo() {
+        basicInfoGrid.getChildren().clear();
+
+        int row = 0;
+        addBasicInfoRow("Registration Number:", vehicle.getRegistrationNumber(), row++);
+        addBasicInfoRow("Make:", vehicle.getMake(), row++);
+        addBasicInfoRow("Model:", vehicle.getModel(), row++);
+        addBasicInfoRow("Year:", String.valueOf(vehicle.getYear()), row++);
+        addBasicInfoRow("Color:", (vehicle.getColor() != null && !vehicle.getColor().isEmpty()) ? vehicle.getColor() : "Not specified", row++);
+        addBasicInfoRow("Status:", vehicle.getStatus() != null ? vehicle.getStatus() : "Active", row++);
+        addBasicInfoRow("Owner ID:", String.valueOf(vehicle.getOwnerId()), row++);
+        addBasicInfoRow("Owner Name:", vehicle.getOwnerName() != null ? vehicle.getOwnerName() : "Unknown", row++);
+    }
+
+    private void addBasicInfoRow(String label, String value, int row) {
+        Label lbl = new Label(label);
+        lbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
+        Label val = new Label(value != null ? value : "N/A");
+        val.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 13px; -fx-font-weight: bold;");
+        basicInfoGrid.add(lbl, 0, row);
+        basicInfoGrid.add(val, 1, row);
     }
 
     private void loadQuickStats() {
@@ -324,8 +424,17 @@ public class VehicleDetailPopupController {
                     .count();
             reportCountValue.setText(String.valueOf(reportCount));
             insuranceStatusValue.setText("Active");
+
         } catch (SQLException e) {
             e.printStackTrace();
+            violationCountValue.setText("0");
+            unpaidFinesValue.setText("M0.00");
+            paidFinesValue.setText("M0.00");
+            totalFinesValue.setText("M0.00");
+            serviceCountValue.setText("0");
+            lastServiceValue.setText("N/A");
+            nextServiceValue.setText("N/A");
+            reportCountValue.setText("0");
         }
     }
 
@@ -338,6 +447,7 @@ public class VehicleDetailPopupController {
             serviceTable.setItems(FXCollections.observableArrayList(filtered));
         } catch (SQLException e) {
             e.printStackTrace();
+            serviceTable.setItems(FXCollections.observableArrayList());
         }
     }
 
@@ -350,6 +460,7 @@ public class VehicleDetailPopupController {
             violationTable.setItems(FXCollections.observableArrayList(filtered));
         } catch (SQLException e) {
             e.printStackTrace();
+            violationTable.setItems(FXCollections.observableArrayList());
         }
     }
 
@@ -362,60 +473,51 @@ public class VehicleDetailPopupController {
             reportTable.setItems(FXCollections.observableArrayList(filtered));
         } catch (SQLException e) {
             e.printStackTrace();
+            reportTable.setItems(FXCollections.observableArrayList());
         }
     }
 
     private void loadInsuranceInfo() {
         insuranceGrid.getChildren().clear();
-        addInsuranceRow("Insurance Provider:", "Lesotho Insurance Corporation", 0);
-        addInsuranceRow("Policy Number:", "LIC-VIS-" + vehicle.getId() + "-2024", 1);
-        addInsuranceRow("Start Date:", "2024-01-01", 2);
-        addInsuranceRow("Expiry Date:", "2025-01-01", 3);
-        addInsuranceRow("Coverage Type:", "Comprehensive", 4);
-        addInsuranceRow("Coverage Amount:", "M500,000", 5);
-        addInsuranceRow("Premium:", "M5,500 per year", 6);
-    }
 
-    private void addInsuranceRow(String label, String value, int row) {
-        Label lbl = new Label(label);
-        lbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
-        Label val = new Label(value);
-        val.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 13px; -fx-font-weight: bold;");
-        insuranceGrid.add(lbl, 0, row);
-        insuranceGrid.add(val, 1, row);
-    }
+        String[][] insuranceData = {
+                {"Insurance Provider:", "Lesotho Insurance Corporation"},
+                {"Policy Number:", "LIC-VIS-" + vehicle.getId() + "-2024"},
+                {"Start Date:", "2024-01-01"},
+                {"Expiry Date:", "2025-01-01"},
+                {"Coverage Type:", "Comprehensive"},
+                {"Coverage Amount:", "M500,000"},
+                {"Premium:", "M5,500 per year"}
+        };
 
-    private void loadBasicInfo() {
-        basicInfoGrid.getChildren().clear();
-        addBasicInfoRow("Registration Number:", vehicle.getRegistrationNumber(), 0);
-        addBasicInfoRow("Make:", vehicle.getMake(), 1);
-        addBasicInfoRow("Model:", vehicle.getModel(), 2);
-        addBasicInfoRow("Year:", String.valueOf(vehicle.getYear()), 3);
-        addBasicInfoRow("Color:", (vehicle.getColor() != null && !vehicle.getColor().isEmpty()) ? vehicle.getColor() : "Not specified", 4);
-        addBasicInfoRow("Status:", vehicle.getStatus() != null ? vehicle.getStatus() : "Active", 5);
-        addBasicInfoRow("Owner:", vehicle.getOwnerName() != null ? vehicle.getOwnerName() : "Unknown", 6);
-    }
-
-    private void addBasicInfoRow(String label, String value, int row) {
-        Label lbl = new Label(label);
-        lbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
-        Label val = new Label(value != null ? value : "N/A");
-        val.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 13px; -fx-font-weight: bold;");
-        basicInfoGrid.add(lbl, 0, row);
-        basicInfoGrid.add(val, 1, row);
-    }
-
-    private String getStatusStyle(String status) {
-        if (status == null) return "-fx-background-color: #64748b; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px;";
-        switch (status.toLowerCase()) {
-            case "active": return "-fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px;";
-            case "stolen": return "-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px;";
-            case "recovered": return "-fx-background-color: #eab308; -fx-text-fill: black; -fx-background-radius: 12; -fx-font-size: 12px;";
-            default: return "-fx-background-color: #64748b; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px;";
+        for (int i = 0; i < insuranceData.length; i++) {
+            Label lbl = new Label(insuranceData[i][0]);
+            lbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
+            Label val = new Label(insuranceData[i][1]);
+            val.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 13px; -fx-font-weight: bold;");
+            insuranceGrid.add(lbl, 0, i);
+            insuranceGrid.add(val, 1, i);
         }
     }
 
-    @FXML private void handleSaveDescription() {
+    private String getStatusStyle(String status) {
+        if (status == null) return "-fx-background-color: #64748b; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px; -fx-padding: 4 12 4 12;";
+        switch (status.toLowerCase()) {
+            case "active": return "-fx-background-color: #22c55e; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px; -fx-padding: 4 12 4 12;";
+            case "stolen": return "-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px; -fx-padding: 4 12 4 12;";
+            case "recovered": return "-fx-background-color: #eab308; -fx-text-fill: black; -fx-background-radius: 12; -fx-font-size: 12px; -fx-padding: 4 12 4 12;";
+            default: return "-fx-background-color: #64748b; -fx-text-fill: white; -fx-background-radius: 12; -fx-font-size: 12px; -fx-padding: 4 12 4 12;";
+        }
+    }
+
+    @FXML
+    private void handleSaveDescription() {
+        // Only ADMIN can save
+        if (!"ADMIN".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can edit descriptions.");
+            return;
+        }
+
         try {
             vehicle.setDescription(descriptionTextArea.getText());
             vehicleDAO.updateVehicle(vehicle);
@@ -427,7 +529,14 @@ public class VehicleDetailPopupController {
         }
     }
 
-    @FXML private void handleSaveTechnicalSpecs() {
+    @FXML
+    private void handleSaveTechnicalSpecs() {
+        // Only ADMIN can save
+        if (!"ADMIN".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can edit technical specifications.");
+            return;
+        }
+
         try {
             vehicle.setEngine(engineField.getText());
             vehicle.setTransmission(transmissionField.getText());
@@ -439,6 +548,7 @@ public class VehicleDetailPopupController {
             vehicle.setMileage(mileage);
             vehicleDAO.updateVehicle(vehicle);
 
+            // Update display values
             engineValue.setText(vehicle.getEngine().isEmpty() ? "Not specified" : vehicle.getEngine());
             transmissionValue.setText(vehicle.getTransmission().isEmpty() ? "Not specified" : vehicle.getTransmission());
             fuelTypeValue.setText(vehicle.getFuelType().isEmpty() ? "Not specified" : vehicle.getFuelType());
@@ -453,7 +563,14 @@ public class VehicleDetailPopupController {
         }
     }
 
-    @FXML private void handleUploadPhoto() {
+    @FXML
+    private void handleUploadPhoto() {
+        // Only ADMIN can upload photos
+        if (!"ADMIN".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can upload photos.");
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Vehicle Photo");
         fileChooser.getExtensionFilters().addAll(
@@ -486,11 +603,24 @@ public class VehicleDetailPopupController {
         }
     }
 
-    @FXML private void handleEditVehicle() {
-        showAlert(Alert.AlertType.INFORMATION, "Edit", "Edit functionality would open here");
+    @FXML
+    private void handleEditVehicle() {
+        // Only ADMIN can edit
+        if (!"ADMIN".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can edit vehicles.");
+            return;
+        }
+        showAlert(Alert.AlertType.INFORMATION, "Edit Vehicle", "Edit functionality would open a form to edit all vehicle details.");
     }
 
-    @FXML private void handleDeleteVehicle() {
+    @FXML
+    private void handleDeleteVehicle() {
+        // Only ADMIN can delete
+        if (!"ADMIN".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can delete vehicles.");
+            return;
+        }
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirm Delete");
         confirm.setHeaderText("Delete Vehicle");
@@ -509,15 +639,49 @@ public class VehicleDetailPopupController {
         });
     }
 
-    @FXML private void handleGenerateQR() {
-        showAlert(Alert.AlertType.INFORMATION, "QR Code", "QR Code generation would open here");
+    @FXML
+    private void handleGenerateQR() {
+        // ADMIN and POLICE can generate QR codes
+        if (!"ADMIN".equals(userRole) && !"POLICE".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN and POLICE can generate QR codes.");
+            return;
+        }
+
+        String qrData = "Vehicle: " + vehicle.getRegistrationNumber() + "\n" +
+                "Make: " + vehicle.getMake() + "\n" +
+                "Model: " + vehicle.getModel() + "\n" +
+                "Year: " + vehicle.getYear() + "\n" +
+                "Owner: " + vehicle.getOwnerName();
+        showAlert(Alert.AlertType.INFORMATION, "QR Code", "QR Code would be generated with:\n\n" + qrData);
     }
 
-    @FXML private void handlePrintReport() {
-        showAlert(Alert.AlertType.INFORMATION, "Print", "Print functionality would generate a PDF report");
+    @FXML
+    private void handlePrintReport() {
+        // ADMIN and POLICE can print reports
+        if (!"ADMIN".equals(userRole) && !"POLICE".equals(userRole)) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN and POLICE can print reports.");
+            return;
+        }
+
+        String report = "VEHICLE IDENTIFICATION SYSTEM REPORT\n";
+        report += "=====================================\n\n";
+        report += "Registration: " + vehicle.getRegistrationNumber() + "\n";
+        report += "Make/Model: " + vehicle.getMake() + " " + vehicle.getModel() + "\n";
+        report += "Year: " + vehicle.getYear() + "\n";
+        report += "Color: " + (vehicle.getColor() != null ? vehicle.getColor() : "Not specified") + "\n";
+        report += "Status: " + vehicle.getStatus() + "\n";
+        report += "Owner: " + (vehicle.getOwnerName() != null ? vehicle.getOwnerName() : "Unknown") + "\n";
+        report += "\n--- Technical Specifications ---\n";
+        report += "Engine: " + (vehicle.getEngine() != null ? vehicle.getEngine() : "N/A") + "\n";
+        report += "Transmission: " + (vehicle.getTransmission() != null ? vehicle.getTransmission() : "N/A") + "\n";
+        report += "Fuel Type: " + (vehicle.getFuelType() != null ? vehicle.getFuelType() : "N/A") + "\n";
+        report += "Mileage: " + (vehicle.getMileage() > 0 ? vehicle.getMileage() + " km" : "Not recorded") + "\n";
+
+        showAlert(Alert.AlertType.INFORMATION, "Print Report", "Report would be printed:\n\n" + report);
     }
 
-    @FXML private void handleClose() {
+    @FXML
+    private void handleClose() {
         stage.close();
     }
 

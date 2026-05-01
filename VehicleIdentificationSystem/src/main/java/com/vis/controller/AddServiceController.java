@@ -6,28 +6,25 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-/**
- * AddServiceController - MVC Controller for AddService.fxml
- */
 public class AddServiceController {
 
     @FXML private TextField vehicleIdField;
     @FXML private TextField dateField;
     @FXML private TextField typeField;
-    @FXML private TextArea  descField;
+    @FXML private TextArea descField;
     @FXML private TextField costField;
-    @FXML private Label     errorLabel;
+    @FXML private Label errorLabel;
 
     private final WorkshopDAO workshopDAO = new WorkshopDAO();
 
     @FXML
     private void handleSave() {
         try {
-            int    vehicleId = Integer.parseInt(vehicleIdField.getText().trim());
-            String date      = dateField.getText().trim();
-            String type      = typeField.getText().trim();
-            String desc      = descField.getText().trim();
-            double cost      = Double.parseDouble(costField.getText().trim());
+            int vehicleId = Integer.parseInt(vehicleIdField.getText().trim());
+            String date = dateField.getText().trim();
+            String type = typeField.getText().trim();
+            String desc = descField.getText().trim();
+            double cost = Double.parseDouble(costField.getText().trim());
 
             if (date.isEmpty() || type.isEmpty()) {
                 errorLabel.setText("Date and type are required.");
@@ -47,15 +44,21 @@ public class AddServiceController {
         }
     }
 
-    @FXML private void handleCancel() { closeWindow(); }
+    @FXML
+    private void handleCancel() {
+        closeWindow();
+    }
 
     private void closeWindow() {
-        ((Stage) vehicleIdField.getScene().getWindow()).close();
+        Stage stage = (Stage) (errorLabel.getScene().getWindow());
+        stage.close();
     }
 
     private void showAlert(Alert.AlertType type, String title, String msg) {
         Alert a = new Alert(type);
-        a.setTitle(title); a.setHeaderText(null); a.setContentText(msg);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
         a.showAndWait();
     }
 }

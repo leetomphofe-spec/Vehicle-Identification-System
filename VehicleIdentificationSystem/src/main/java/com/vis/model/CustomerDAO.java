@@ -29,16 +29,32 @@ public class CustomerDAO {
     public void addCustomer(Customer c) throws SQLException {
         String sql = "INSERT INTO Customer(name, address, phone, email) VALUES(?,?,?,?)";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, c.getName());
             ps.setString(2, c.getAddress());
             ps.setString(3, c.getPhone());
             ps.setString(4, c.getEmail());
             ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                c.setId(rs.getInt(1));
+            }
         }
     }
 
     public void deleteCustomer(int id) throws SQLException {
+        // First check if customer has vehicles
+        String checkSql = "SELECT COUNT(*) FROM Vehicle WHERE owner_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
+            checkPs.setInt(1, id);
+            ResultSet rs = checkPs.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                throw new SQLException("Cannot delete customer with existing vehicles. Transfer vehicles first.");
+            }
+        }
+
         String sql = "DELETE FROM Customer WHERE customer_id=?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -67,6 +83,6 @@ public class CustomerDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getString("role");
         }
-        return null;
+        return "USER";
     }
 }

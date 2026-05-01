@@ -6,27 +6,24 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-/**
- * AddCustomerController - MVC Controller for AddCustomer.fxml
- */
 public class AddCustomerController {
 
     @FXML private TextField nameField;
     @FXML private TextField addressField;
     @FXML private TextField phoneField;
     @FXML private TextField emailField;
-    @FXML private Label     errorLabel;
-    @FXML private Button    saveBtn;
+    @FXML private Label errorLabel;
+    @FXML private Button saveBtn;
 
     private final CustomerDAO customerDAO = new CustomerDAO();
 
     @FXML
     private void handleSave() {
         try {
-            String name    = nameField.getText().trim();
+            String name = nameField.getText().trim();
             String address = addressField.getText().trim();
-            String phone   = phoneField.getText().trim();
-            String email   = emailField.getText().trim();
+            String phone = phoneField.getText().trim();
+            String email = emailField.getText().trim();
 
             if (name.isEmpty()) {
                 errorLabel.setText("Name is required.");
@@ -37,7 +34,7 @@ public class AddCustomerController {
             customerDAO.addCustomer(c);
 
             showAlert(Alert.AlertType.INFORMATION, "Success",
-                    "Customer " + name + " added successfully.");
+                    "Customer " + name + " added successfully with ID: " + c.getId());
             closeWindow();
 
         } catch (Exception e) {

@@ -80,3 +80,58 @@
         <Button fx:id="saveBtn" text="Save Vehicle" onAction="#handleSave" styleClass="primary-btn"/>
     </HBox>
 </VBox>
+
+
+
+
+
+
+
+
+
+
+
+        <?xml version="1.0" encoding="UTF-8"?>
+
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+        <?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.vis.controller.AddServiceController"
+      spacing="15" styleClass="root-pane"
+      prefWidth="430" prefHeight="380">
+
+<padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
+
+<Label text="Add Service Record" styleClass="section-title"/>
+
+<GridPane hgap="10" vgap="12">
+    <Label text="Vehicle ID" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+    <TextField fx:id="vehicleIdField" promptText="Vehicle ID"
+               GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
+
+    <Label text="Service Date" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+    <TextField fx:id="dateField" promptText="YYYY-MM-DD"
+               GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+
+    <Label text="Service Type" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+    <TextField fx:id="typeField" promptText="e.g. Oil Change, Brake Service"
+               GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+
+    <Label text="Description" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+    <TextArea fx:id="descField" promptText="Service details..."
+              GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
+
+    <Label text="Cost (M)" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+    <TextField fx:id="costField" promptText="e.g. 1250.00"
+               GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+</GridPane>
+
+<Label fx:id="errorLabel" text="" styleClass="error-label"/>
+
+<HBox spacing="10" alignment="CENTER_RIGHT">
+    <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-btn"/>
+    <Button text="Save Record" onAction="#handleSave" styleClass="primary-btn"/>
+</HBox>
+</VBox>

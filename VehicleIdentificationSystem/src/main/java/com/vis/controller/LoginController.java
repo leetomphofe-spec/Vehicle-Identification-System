@@ -14,28 +14,23 @@ import javafx.util.Duration;
 
 import java.sql.SQLException;
 
-/**
- * LoginController - MVC Controller for Login.fxml
- */
 public class LoginController {
 
-    @FXML private TextField     usernameField;
+    @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private Label         errorLabel;
-    @FXML private Button        loginButton;
+    @FXML private Label errorLabel;
+    @FXML private Button loginButton;
 
     private final CustomerDAO customerDAO = new CustomerDAO();
 
     @FXML
     public void initialize() {
-        // DropShadow effect on login button
         DropShadow shadow = new DropShadow();
         shadow.setColor(Color.web("#0ea5e9"));
         shadow.setRadius(12);
         shadow.setSpread(0.4);
         loginButton.setEffect(shadow);
 
-        // FadeTransition - continuous fade in/out on login button
         FadeTransition fade = new FadeTransition(Duration.seconds(1.4), loginButton);
         fade.setFromValue(1.0);
         fade.setToValue(0.55);
@@ -43,7 +38,6 @@ public class LoginController {
         fade.setAutoReverse(true);
         fade.play();
 
-        // Allow Enter key to trigger login
         passwordField.setOnAction(e -> handleLogin());
     }
 
@@ -66,7 +60,6 @@ public class LoginController {
                 errorLabel.setText("Invalid username or password.");
             }
         } catch (SQLException e) {
-            // Demo mode: allow login without DB
             System.err.println("DB not available, demo mode: " + e.getMessage());
             openDashboard(username, "ADMIN");
         } catch (Exception e) {
@@ -76,21 +69,19 @@ public class LoginController {
 
     private void openDashboard(String username, String role) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/com/vis/fxml/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/Dashboard.fxml"));
             Parent root = loader.load();
 
             DashboardController dc = loader.getController();
             dc.initData(username, role);
 
-            Scene scene = new Scene(root, 700, 500);
-            scene.getStylesheets().add(
-                    getClass().getResource("/com/vis/css/styles.css").toExternalForm());
+            Scene scene = new Scene(root, 1100, 700);
+            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setResizable(true);
-            stage.setTitle("VIS - Dashboard [" + role + "]");
+            stage.setTitle("VIS - Dashboard");
         } catch (Exception e) {
             errorLabel.setText("Failed to load dashboard: " + e.getMessage());
             e.printStackTrace();

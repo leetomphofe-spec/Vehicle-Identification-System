@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.vis.controller.LoginController"
+      alignment="CENTER" spacing="20"
+      styleClass="root-pane"
+      prefWidth="500" prefHeight="400">
+
+    <padding><Insets top="40" right="60" bottom="40" left="60"/></padding>
+
+    <Label text="VEHICLE IDENTIFICATION SYSTEM" styleClass="app-title"/>
+    <Label text="Sign in to continue" styleClass="subtitle"/>
+
+    <VBox spacing="10" styleClass="form-box">
+        <Label text="Username" styleClass="field-label"/>
+        <TextField fx:id="usernameField" promptText="Enter username" styleClass="text-field-vis"/>
+
+        <Label text="Password" styleClass="field-label"/>
+        <PasswordField fx:id="passwordField" promptText="Enter password" styleClass="text-field-vis"/>
+
+        <Label fx:id="errorLabel" text="" styleClass="error-label"/>
+
+        <Button fx:id="loginButton" text="LOGIN" onAction="#handleLogin"
+                styleClass="primary-btn" maxWidth="Infinity"/>
+    </VBox>
+
+    <Label text="Vehicle Identification System © 2026 | Limkokwing University Lesotho"
+           styleClass="footer-label"/>
+</VBox>

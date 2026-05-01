@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.vis.controller.VehicleDetailPopupController"
+            prefWidth="1100" prefHeight="750">
+
+    <style>
+        -fx-background-color: #0f172a;
+    </style>
+
+    <!-- HEADER -->
+    <top>
+        <VBox spacing="10">
+            <style>
+                -fx-background-color: #1e293b;
+                -fx-border-color: #0ea5e9;
+                -fx-border-width: 0 0 2 0;
+            </style>
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label fx:id="regLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #38bdf8;"/>
+                    <Label fx:id="yearMakeModelLabel" style="-fx-text-fill: #94a3b8; -fx-font-size: 14px;"/>
+                </VBox>
+                <Label fx:id="statusBadge" style="-fx-padding: 4 12 4 12; -fx-background-radius: 12; -fx-font-size: 12px;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="closeBtn" text="✕" onAction="#handleClose" style="-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-size: 20px; -fx-cursor: hand;"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="📝" style="-fx-font-size: 14px;"/>
+                <Label fx:id="descriptionLabel" wrapText="true" maxWidth="600" style="-fx-text-fill: #cbd5e1;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- CENTER -->
+    <center>
+        <SplitPane dividerPositions="0.38" style="-fx-background-color: #0f172a;">
+
+            <!-- LEFT PANEL -->
+            <VBox spacing="15">
+                <style>
+                    -fx-background-color: #1e293b;
+                    -fx-background-radius: 10;
+                </style>
+                <padding>
+                    <Insets top="15" right="15" bottom="15" left="15"/>
+                </padding>
+
+                <!-- Primary Image -->
+                <StackPane fx:id="imageContainer" prefWidth="320" prefHeight="240" style="-fx-background-color: #0f172a; -fx-border-color: #334155; -fx-border-radius: 8;">
+                    <ImageView fx:id="primaryImageView" fitWidth="320" fitHeight="240" preserveRatio="true"/>
+                </StackPane>
+
+                <!-- Technical Specifications -->
+                <VBox spacing="10" style="-fx-background-color: #0f172a; -fx-background-radius: 8;">
+                    <padding>
+                        <Insets top="12" right="12" bottom="12" left="12"/>
+                    </padding>
+                    <Label text="Technical Specifications" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <GridPane hgap="12" vgap="8">
+                        <Label text="Engine:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                        <Label fx:id="engineValue" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px;"/>
+
+                        <Label text="Transmission:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                        <Label fx:id="transmissionValue" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px;"/>
+
+                        <Label text="Fuel Type:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                        <Label fx:id="fuelTypeValue" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px;"/>
+
+                        <Label text="Mileage (km):" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                        <Label fx:id="mileageValue" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-text-fill: #e2e8f0; -fx-font-size: 12px;"/>
+                    </GridPane>
+                </VBox>
+
+                <!-- Photo Gallery -->
+                <Label text="Photo Gallery" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold;"/>
+                <ScrollPane fitToWidth="true" prefHeight="130" style="-fx-background-color: #0f172a; -fx-background: transparent;">
+                    <FlowPane fx:id="thumbnailPane" hgap="8" vgap="8" style="-fx-background-color: #0f172a; -fx-padding: 8;"/>
+                </ScrollPane>
+                <Button fx:id="uploadPhotoBtn" text="+ Upload Photo" onAction="#handleUploadPhoto" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-padding: 6 12; -fx-background-radius: 5; -fx-cursor: hand;"/>
+            </VBox>
+
+            <!-- RIGHT PANEL - TABS -->
+            <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: #0f172a;">
+
+                <!-- Basic Info Tab -->
+                <Tab text="Basic Info">
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: #0f172a;">
+                        <VBox spacing="12">
+                            <style>
+                                -fx-background-color: #1e293b;
+                                -fx-background-radius: 10;
+                            </style>
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+                            <GridPane fx:id="basicInfoGrid" hgap="25" vgap="12"/>
+                            <Label text="Vehicle Description" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                            <TextArea fx:id="descriptionTextArea" wrapText="true" prefHeight="100" style="-fx-background-color: #0f172a; -fx-text-fill: #cbd5e1; -fx-border-color: #334155;"/>
+                            <Button fx:id="saveDescBtn" text="Save Description" onAction="#handleSaveDescription" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- Technical Specs Tab -->
+                <Tab text="Technical Specs">
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: #0f172a;">
+                        <VBox spacing="15">
+                            <style>
+                                -fx-background-color: #1e293b;
+                                -fx-background-radius: 10;
+                            </style>
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+                            <GridPane fx:id="techSpecsGrid" hgap="20" vgap="15">
+                                <Label text="Engine:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                                <TextField fx:id="engineField" GridPane.rowIndex="0" GridPane.columnIndex="1" promptText="Engine" style="-fx-background-color: #0f172a; -fx-text-fill: #e2e8f0; -fx-border-color: #334155;"/>
+
+                                <Label text="Transmission:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                                <TextField fx:id="transmissionField" GridPane.rowIndex="1" GridPane.columnIndex="1" promptText="Transmission" style="-fx-background-color: #0f172a; -fx-text-fill: #e2e8f0; -fx-border-color: #334155;"/>
+
+                                <Label text="Fuel Type:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                                <TextField fx:id="fuelTypeField" GridPane.rowIndex="2" GridPane.columnIndex="1" promptText="Fuel Type" style="-fx-background-color: #0f172a; -fx-text-fill: #e2e8f0; -fx-border-color: #334155;"/>
+
+                                <Label text="Mileage (km):" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;"/>
+                                <TextField fx:id="mileageField" GridPane.rowIndex="3" GridPane.columnIndex="1" promptText="Mileage" style="-fx-background-color: #0f172a; -fx-text-fill: #e2e8f0; -fx-border-color: #334155;"/>
+                            </GridPane>
+                            <Button fx:id="saveSpecsBtn" text="Save Changes" onAction="#handleSaveTechnicalSpecs" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- Service History Tab -->
+                <Tab text="Service History">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <TableView fx:id="serviceTable" VBox.vgrow="ALWAYS" style="-fx-background-color: #1e293b;">
+                            <columns>
+                                <TableColumn fx:id="sIdCol" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="sDateCol" text="Service Date" prefWidth="110"/>
+                                <TableColumn fx:id="sTypeCol" text="Service Type" prefWidth="140"/>
+                                <TableColumn fx:id="sDescCol" text="Description" prefWidth="220"/>
+                                <TableColumn fx:id="sCostCol" text="Cost (M)" prefWidth="90"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No service records found"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <!-- Violations Tab -->
+                <Tab text="Violations">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <TableView fx:id="violationTable" VBox.vgrow="ALWAYS" style="-fx-background-color: #1e293b;">
+                            <columns>
+                                <TableColumn fx:id="vIdCol" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="vDateCol" text="Violation Date" prefWidth="110"/>
+                                <TableColumn fx:id="vTypeCol" text="Violation Type" prefWidth="160"/>
+                                <TableColumn fx:id="vFineCol" text="Fine Amount" prefWidth="100"/>
+                                <TableColumn fx:id="vStatusCol" text="Status" prefWidth="90"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No violations for this vehicle"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <!-- Police Reports Tab -->
+                <Tab text="Police Reports">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="15" right="15" bottom="15" left="15"/>
+                        </padding>
+                        <TableView fx:id="reportTable" VBox.vgrow="ALWAYS" style="-fx-background-color: #1e293b;">
+                            <columns>
+                                <TableColumn fx:id="rIdCol" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="rDateCol" text="Report Date" prefWidth="110"/>
+                                <TableColumn fx:id="rTypeCol" text="Report Type" prefWidth="130"/>
+                                <TableColumn fx:id="rDescCol" text="Description" prefWidth="220"/>
+                                <TableColumn fx:id="rOfficerCol" text="Officer" prefWidth="130"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="No police reports for this vehicle"/>
+                            </placeholder>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <!-- Insurance Tab -->
+                <Tab text="Insurance">
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: #0f172a;">
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="15" right="15" bottom="15" left="15"/>
+                            </padding>
+                            <GridPane fx:id="insuranceGrid" hgap="15" vgap="10" style="-fx-background-color: #1e293b; -fx-padding: 18; -fx-background-radius: 10;"/>
+                        </VBox>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- Quick Stats Tab -->
+                <Tab text="Quick Stats">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets top="20" right="20" bottom="20" left="20"/>
+                        </padding>
+                        <GridPane hgap="15" vgap="12">
+                            <Label text="Total Violations:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="violationCountValue" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Unpaid Fines:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="unpaidFinesValue" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Paid Fines:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="paidFinesValue" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Total Fines:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="totalFinesValue" GridPane.rowIndex="3" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Separator GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+                            <Label text="Last Service:" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="lastServiceValue" GridPane.rowIndex="5" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Next Service Due:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="nextServiceValue" GridPane.rowIndex="6" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Total Services:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="serviceCountValue" GridPane.rowIndex="7" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Separator GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+                            <Label text="Police Reports:" GridPane.rowIndex="9" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="reportCountValue" GridPane.rowIndex="9" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+
+                            <Label text="Insurance Status:" GridPane.rowIndex="10" GridPane.columnIndex="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                            <Label fx:id="insuranceStatusValue" GridPane.rowIndex="10" GridPane.columnIndex="1" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        </GridPane>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </SplitPane>
+    </center>
+
+    <!-- FOOTER -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-background-color: #1e293b; -fx-border-color: #334155; -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            <Button fx:id="editBtn" text="✏️ Edit Vehicle" onAction="#handleEditVehicle" style="-fx-background-color: #334155; -fx-text-fill: #e2e8f0; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;"/>
+            <Button fx:id="deleteBtn" text="🗑️ Delete Vehicle" onAction="#handleDeleteVehicle" style="-fx-background-color: #dc2626; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;"/>
+            <Button fx:id="qrBtn" text="📱 Generate QR Code" onAction="#handleGenerateQR" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;"/>
+            <Button fx:id="printBtn" text="🖨️ Print Report" onAction="#handlePrintReport" style="-fx-background-color: #475569; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 5; -fx-cursor: hand;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

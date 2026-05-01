@@ -1,0 +1,80 @@
+package com.vis.model;
+
+import com.vis.db.DatabaseConnection;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.sql.*;
+
+public class PoliceDAO {
+
+    public ObservableList<PoliceReport> getAllReports() throws SQLException {
+        ObservableList<PoliceReport> list = FXCollections.observableArrayList();
+        String sql = "SELECT pr.report_id, pr.vehicle_id, pr.report_date::TEXT, " +
+                     "pr.report_type, pr.description, pr.officer_name, v.registration_number " +
+                     "FROM PoliceReport pr JOIN Vehicle v ON pr.vehicle_id=v.vehicle_id " +
+                     "ORDER BY pr.report_date DESC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(new PoliceReport(
+                        rs.getInt("report_id"),
+                        rs.getInt("vehicle_id"),
+                        rs.getString("report_date"),
+                        rs.getString("report_type"),
+                        rs.getString("description"),
+                        rs.getString("officer_name"),
+                        rs.getString("registration_number")));
+            }
+        }
+        return list;
+    }
+
+    public void addReport(PoliceReport r) throws SQLException {
+        String sql = "INSERT INTO PoliceReport(vehicle_id,report_date,report_type,description,officer_name) " +
+                     "VALUES(?,?,?,?,?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, r.getVehicleId());
+            ps.setDate(2, java.sql.Date.valueOf(r.getReportDate()));
+            ps.setString(3, r.getReportType());
+            ps.setString(4, r.getDescription());
+            ps.setString(5, r.getOfficerName());
+            ps.executeUpdate();
+        }
+    }
+
+    public ObservableList<Violation> getAllViolations() throws SQLException {
+        ObservableList<Violation> list = FXCollections.observableArrayList();
+        // Uses the ActiveViolations view for unpaid, plus all via full query
+        String sql = "SELECT vl.violation_id, vl.vehicle_id, vl.violation_date::TEXT, " +
+                     "vl.violation_type, vl.fine_amount, vl.status, v.registration_number " +
+                     "FROM Violation vl JOIN Vehicle v ON vl.vehicle_id=v.vehicle_id " +
+                     "ORDER BY vl.violation_date DESC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Violation(
+                        rs.getInt("violation_id"),
+                        rs.getInt("vehicle_id"),
+                        rs.getString("violation_date"),
+                        rs.getString("violation_type"),
+                        rs.getDouble("fine_amount"),
+                        rs.getString("status"),
+                        rs.getString("registration_number")));
+            }
+        }
+        return list;
+    }
+
+    public void markViolationPaid(int violationId) throws SQLException {
+        String sql = "UPDATE Violation SET status='Paid' WHERE violation_id=?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, violationId);
+            ps.executeUpdate();
+        }
+    }
+}

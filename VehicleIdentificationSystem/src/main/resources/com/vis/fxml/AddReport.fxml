@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.vis.controller.AddReportController"
+      spacing="15" styleClass="root-pane"
+      prefWidth="430" prefHeight="380">
+
+    <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
+
+    <Label text="Add Police Report" styleClass="section-title"/>
+
+    <GridPane hgap="10" vgap="12">
+        <Label text="Vehicle ID"    GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="vehicleIdField" promptText="Vehicle ID"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
+
+        <Label text="Report Date"   GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="dateField" promptText="YYYY-MM-DD"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+
+        <Label text="Report Type"   GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="typeCombo" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                  prefWidth="220" styleClass="combo-vis"/>
+
+        <Label text="Description"   GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextArea fx:id="descField" promptText="Details..."
+                  GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
+
+        <Label text="Officer Name"  GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="officerField" promptText="Officer full name"
+                   GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+    </GridPane>
+
+    <Label fx:id="errorLabel" text="" styleClass="error-label"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-btn"/>
+        <Button text="Save Report" onAction="#handleSave" styleClass="primary-btn"/>
+    </HBox>
+</VBox>

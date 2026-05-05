@@ -40,7 +40,7 @@
 
                 <!-- Logo and Title -->
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <ImageView fitWidth="35" fitHeight="35" preserveRatio="true">
+                    <ImageView fitWidth="60" fitHeight="60" preserveRatio="true">
                         <image>
                             <Image url="@../images/logo.png" />
                         </image>

@@ -16,9 +16,9 @@
 
     <!-- Logo and Title Section -->
     <VBox alignment="CENTER" spacing="10">
-        <ImageView fx:id="logoImage" fitWidth="80" fitHeight="80" preserveRatio="true">
+        <ImageView fx:id="logoImage" fitWidth="130" fitHeight="130" preserveRatio="true">
             <image>
-                <Image url="@../images/logo.png" />
+                <Image url="@../images/log.png" />
             </image>
         </ImageView>
         <Label text="VEHICLE IDENTIFICATION SYSTEM" styleClass="app-title"/>

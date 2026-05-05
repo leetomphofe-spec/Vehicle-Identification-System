@@ -5,133 +5,55 @@
 <?import javafx.geometry.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.vis.controller.AddVehicleController"
+      fx:controller="com.vis.controller.AddServiceController"
       spacing="15" styleClass="root-pane"
-      prefWidth="550" prefHeight="650">
+      prefWidth="500" prefHeight="500">
 
     <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
 
-    <Label text="Add New Vehicle" styleClass="section-title"/>
+    <Label text="Add Service Record" styleClass="section-title"/>
 
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
-        <GridPane hgap="10" vgap="12">
-            <!-- Basic Information -->
-            <Label text="Registration No.*" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="regField" promptText="e.g. A 123 LS"
-                       GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="250" styleClass="text-field-vis"/>
+    <GridPane hgap="10" vgap="12">
+        <!-- Vehicle Selection Dropdown -->
+        <Label text="Select Vehicle" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="vehicleCombo" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  prefWidth="280" promptText="Select a vehicle..." styleClass="combo-vis"/>
 
-            <Label text="Make*" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="makeField" promptText="e.g. Toyota"
-                       GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+        <!-- Vehicle ID (auto-filled) -->
+        <Label text="Vehicle ID" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="vehicleIdField" promptText="Auto-filled" editable="false"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-            <Label text="Model*" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="modelField" promptText="e.g. Corolla"
-                       GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+        <!-- Registration Number (auto-filled) -->
+        <Label text="Registration Number" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="regNumberField" promptText="Auto-filled" editable="false"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-            <Label text="Year*" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="yearField" promptText="e.g. 2020"
-                       GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+        <!-- Service Date with DatePicker -->
+        <Label text="Service Date" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <DatePicker fx:id="datePicker" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                    prefWidth="280" promptText="Select service date" styleClass="date-picker-vis"/>
 
-            <Label text="Owner ID*" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="ownerIdField" promptText="Customer ID"
-                       GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+        <!-- Service Type Dropdown -->
+        <Label text="Service Type" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="typeCombo" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                  prefWidth="280" styleClass="combo-vis"/>
 
-            <Label text="Color" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="colorField" promptText="e.g. Red, Blue, Silver"
-                       GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+        <!-- Description -->
+        <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextArea fx:id="descField" promptText="Service details..."
+                  GridPane.rowIndex="5" GridPane.columnIndex="1" prefHeight="80" styleClass="text-field-vis"/>
 
-            <Label text="Status" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
-            <ComboBox fx:id="statusCombo" GridPane.rowIndex="6" GridPane.columnIndex="1"
-                      prefWidth="250" styleClass="combo-vis"/>
-
-            <Label text="Description" GridPane.rowIndex="7" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextArea fx:id="descriptionArea" promptText="Vehicle description, condition, special features..."
-                      GridPane.rowIndex="7" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
-
-            <!-- Technical Specifications -->
-            <Separator GridPane.rowIndex="8" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                       style="-fx-background-color: #334155;" />
-
-            <Label text="Technical Specifications" GridPane.rowIndex="9" GridPane.columnIndex="0" GridPane.columnSpan="2"
-                   styleClass="section-title" style="-fx-font-size: 14px;"/>
-
-            <Label text="Engine" GridPane.rowIndex="10" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="engineField" promptText="e.g. 2.0L Turbo, 1.8L Hybrid"
-                       GridPane.rowIndex="10" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-
-            <Label text="Transmission" GridPane.rowIndex="11" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="transmissionField" promptText="e.g. 6-Speed Automatic, CVT"
-                       GridPane.rowIndex="11" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-
-            <Label text="Fuel Type" GridPane.rowIndex="12" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="fuelTypeField" promptText="e.g. Petrol, Diesel, Hybrid, Electric"
-                       GridPane.rowIndex="12" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-
-            <Label text="Mileage (km)" GridPane.rowIndex="13" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="mileageField" promptText="e.g. 45000"
-                       GridPane.rowIndex="13" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-        </GridPane>
-    </ScrollPane>
+        <!-- Cost -->
+        <Label text="Cost (M)" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="costField" promptText="e.g. 1250.00"
+                   GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+    </GridPane>
 
     <Label fx:id="errorLabel" text="" styleClass="error-label"/>
 
     <HBox spacing="10" alignment="CENTER_RIGHT">
         <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-btn"/>
-        <Button fx:id="saveBtn" text="Save Vehicle" onAction="#handleSave" styleClass="primary-btn"/>
+        <Button text="Save Record" onAction="#handleSave" styleClass="primary-btn"/>
     </HBox>
-</VBox>
-
-
-
-
-
-
-
-
-
-
-
-        <?xml version="1.0" encoding="UTF-8"?>
-
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.control.*?>
-        <?import javafx.geometry.*?>
-
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.vis.controller.AddServiceController"
-      spacing="15" styleClass="root-pane"
-      prefWidth="430" prefHeight="380">
-
-<padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
-
-<Label text="Add Service Record" styleClass="section-title"/>
-
-<GridPane hgap="10" vgap="12">
-    <Label text="Vehicle ID" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
-    <TextField fx:id="vehicleIdField" promptText="Vehicle ID"
-               GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
-
-    <Label text="Service Date" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
-    <TextField fx:id="dateField" promptText="YYYY-MM-DD"
-               GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-
-    <Label text="Service Type" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
-    <TextField fx:id="typeField" promptText="e.g. Oil Change, Brake Service"
-               GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-
-    <Label text="Description" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
-    <TextArea fx:id="descField" promptText="Service details..."
-              GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
-
-    <Label text="Cost (M)" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
-    <TextField fx:id="costField" promptText="e.g. 1250.00"
-               GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
-</GridPane>
-
-<Label fx:id="errorLabel" text="" styleClass="error-label"/>
-
-<HBox spacing="10" alignment="CENTER_RIGHT">
-    <Button text="Cancel" onAction="#handleCancel" styleClass="secondary-btn"/>
-    <Button text="Save Record" onAction="#handleSave" styleClass="primary-btn"/>
-</HBox>
 </VBox>

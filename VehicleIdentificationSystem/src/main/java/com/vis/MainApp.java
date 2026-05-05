@@ -13,7 +13,7 @@ public class MainApp extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/vis/fxml/Login.fxml"));
         Parent root = loader.load();
-        Scene scene = new Scene(root, 500, 400);
+        Scene scene = new Scene(root, 700, 600);
         scene.getStylesheets().add(
                 getClass().getResource("/com/vis/css/styles.css").toExternalForm());
         primaryStage.setTitle("Vehicle Identification System");

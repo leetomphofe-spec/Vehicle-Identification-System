@@ -7,36 +7,52 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.vis.controller.AddViolationController"
       spacing="15" styleClass="root-pane"
-      prefWidth="450" prefHeight="400">
+      prefWidth="500" prefHeight="480">
 
     <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
 
     <Label text="Add New Violation" styleClass="section-title"/>
 
     <GridPane hgap="10" vgap="12">
-        <Label text="Vehicle ID" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="vehicleIdField" promptText="Enter Vehicle ID"
-                   GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
+        <!-- Vehicle Selection Dropdown -->
+        <Label text="Select Vehicle" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="vehicleCombo" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  prefWidth="280" promptText="Select a vehicle..." styleClass="combo-vis"/>
 
-        <Label text="Registration Number" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="regNumberField" promptText="e.g. A 123 LS"
+        <!-- Vehicle ID (auto-filled) -->
+        <Label text="Vehicle ID" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="vehicleIdField" promptText="Auto-filled" editable="false"
                    GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Violation Date" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="dateField" promptText="YYYY-MM-DD"
+        <!-- Registration Number (auto-filled) -->
+        <Label text="Registration Number" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="regNumberField" promptText="Auto-filled" editable="false"
                    GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Violation Type" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
-        <ComboBox fx:id="typeCombo" GridPane.rowIndex="3" GridPane.columnIndex="1"
-                  prefWidth="220" styleClass="combo-vis"/>
+        <!-- Vehicle Details -->
+        <Label text="Vehicle Make/Model" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="vehicleDetailsField" promptText="Auto-filled" editable="false"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Fine Amount (M)" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <!-- Violation Date with DatePicker -->
+        <Label text="Violation Date" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <DatePicker fx:id="datePicker" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                    prefWidth="280" promptText="Select violation date" styleClass="date-picker-vis"/>
+
+        <!-- Violation Type Dropdown -->
+        <Label text="Violation Type" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="typeCombo" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                  prefWidth="280" styleClass="combo-vis"/>
+
+        <!-- Fine Amount -->
+        <Label text="Fine Amount (M)" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="fineField" promptText="e.g. 500.00"
-                   GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+                   GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextArea fx:id="descField" promptText="Violation details..."
-                  GridPane.rowIndex="5" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
+        <!-- Description -->
+        <Label text="Description" GridPane.rowIndex="7" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextArea fx:id="descField" promptText="Additional violation details..."
+                  GridPane.rowIndex="7" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
     </GridPane>
 
     <Label fx:id="errorLabel" text="" styleClass="error-label"/>

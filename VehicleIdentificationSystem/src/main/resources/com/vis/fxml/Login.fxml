@@ -3,20 +3,29 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.vis.controller.LoginController"
       alignment="CENTER" spacing="20"
       styleClass="root-pane"
-      prefWidth="500" prefHeight="400">
+      prefWidth="500" prefHeight="450">
 
     <padding><Insets top="40" right="60" bottom="40" left="60"/></padding>
 
-    <Label text="VEHICLE IDENTIFICATION SYSTEM" styleClass="app-title"/>
-    <Label text="Sign in to continue" styleClass="subtitle"/>
+    <!-- Logo and Title Section -->
+    <VBox alignment="CENTER" spacing="10">
+        <ImageView fx:id="logoImage" fitWidth="80" fitHeight="80" preserveRatio="true">
+            <image>
+                <Image url="@../images/logo.png" />
+            </image>
+        </ImageView>
+        <Label text="VEHICLE IDENTIFICATION SYSTEM" styleClass="app-title"/>
+        <Label text="Sign in to continue" styleClass="subtitle"/>
+    </VBox>
 
-    <VBox spacing="10" styleClass="form-box">
+    <VBox spacing="15" styleClass="form-box">
         <Label text="Username" styleClass="field-label"/>
         <TextField fx:id="usernameField" promptText="Enter username" styleClass="text-field-vis"/>
 

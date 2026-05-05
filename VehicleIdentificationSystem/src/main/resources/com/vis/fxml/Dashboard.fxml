@@ -3,11 +3,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.vis.controller.DashboardController"
-            prefWidth="1100" prefHeight="700"
+            prefWidth="1280" prefHeight="800"
             styleClass="root-pane">
 
     <top>
@@ -27,15 +28,26 @@
                     <MenuItem text="Workshop" onAction="#showWorkshop"/>
                     <MenuItem text="Police" onAction="#showPolice"/>
                     <MenuItem text="Customers" onAction="#showCustomers"/>
+                    <MenuItem text="Insurance" onAction="#showInsurance"/>
                 </Menu>
                 <Menu text="Help">
                     <MenuItem text="About" onAction="#showAbout"/>
                 </Menu>
             </MenuBar>
 
-            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20">
-                <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
-                <Label text="VIS" styleClass="header-title"/>
+            <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="15">
+                <padding><Insets top="10" right="25" bottom="10" left="25"/></padding>
+
+                <!-- Logo and Title -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <ImageView fitWidth="35" fitHeight="35" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/logo.png" />
+                        </image>
+                    </ImageView>
+                    <Label text="Vehicle Identification System" styleClass="header-title"/>
+                </HBox>
+
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="welcomeLabel" text="Welcome, Admin" styleClass="welcome-label"/>
                 <Button text="Logout" onAction="#handleLogout" styleClass="logout-btn"/>
@@ -49,45 +61,52 @@
             <!-- Dashboard Tab -->
             <Tab text="Dashboard" fx:id="dashboardTab">
                 <ScrollPane fitToWidth="true" styleClass="scroll-pane">
-                    <VBox spacing="20" styleClass="dashboard-content">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                    <VBox spacing="25" styleClass="dashboard-content">
+                        <padding><Insets top="25" right="25" bottom="25" left="25"/></padding>
+
                         <Label text="System Overview" styleClass="section-title"/>
 
-                        <HBox spacing="20">
+                        <HBox spacing="25">
                             <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
                                 <Label text="Total Vehicles" styleClass="stat-label"/>
-                                <Label fx:id="totalVehiclesLabel" text="0" styleClass="stat-value"/>
+                                <Label fx:id="totalVehiclesLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #3b82f6;"/>
                             </VBox>
                             <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
                                 <Label text="Customers" styleClass="stat-label"/>
-                                <Label fx:id="totalCustomersLabel" text="0" styleClass="stat-value"/>
+                                <Label fx:id="totalCustomersLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #10b981;"/>
                             </VBox>
                             <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
                                 <Label text="Police Reports" styleClass="stat-label"/>
-                                <Label fx:id="totalReportsLabel" text="0" styleClass="stat-value"/>
+                                <Label fx:id="totalReportsLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #f59e0b;"/>
                             </VBox>
                             <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
                                 <Label text="Violations" styleClass="stat-label"/>
-                                <Label fx:id="totalViolationsLabel" text="0" styleClass="stat-value"/>
+                                <Label fx:id="totalViolationsLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #ef4444;"/>
+                            </VBox>
+                            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <Label text="Active Insurance" styleClass="stat-label"/>
+                                <Label fx:id="totalInsuranceLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #8b5cf6;"/>
                             </VBox>
                         </HBox>
 
                         <Label text="System Progress Indicators" styleClass="section-title"/>
-                        <HBox spacing="20" alignment="CENTER_LEFT">
-                            <VBox spacing="5">
-                                <Label text="Database Sync" styleClass="field-label"/>
-                                <ProgressBar fx:id="progressBar" progress="0.75" prefWidth="250" styleClass="progress-bar-vis"/>
+
+                        <HBox spacing="30" alignment="CENTER_LEFT">
+                            <VBox spacing="8">
+                                <Label text="Database Synchronization" styleClass="field-label"/>
+                                <ProgressBar fx:id="progressBar" progress="0.75" prefWidth="300" styleClass="progress-bar-vis"/>
                             </VBox>
-                            <VBox spacing="5" alignment="CENTER">
-                                <Label text="Loading" styleClass="field-label"/>
-                                <ProgressIndicator fx:id="progressIndicator" progress="-1" prefWidth="50"/>
+                            <VBox spacing="8" alignment="CENTER">
+                                <Label text="System Loading" styleClass="field-label"/>
+                                <ProgressIndicator fx:id="progressIndicator" progress="-1" prefWidth="60" styleClass="progress-indicator-vis"/>
                             </VBox>
                         </HBox>
 
-                        <Label text="Recent Activity Log" styleClass="section-title"/>
-                        <ScrollPane prefHeight="200" styleClass="inner-scroll">
-                            <VBox fx:id="activityLogBox" spacing="5" styleClass="activity-log">
-                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                        <Label text="Recent Activity" styleClass="section-title"/>
+
+                        <ScrollPane prefHeight="220" styleClass="inner-scroll">
+                            <VBox fx:id="activityLogBox" spacing="8" styleClass="activity-log">
+                                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
                             </VBox>
                         </ScrollPane>
 
@@ -99,12 +118,12 @@
 
             <!-- Vehicles Tab -->
             <Tab text="Vehicles" fx:id="vehiclesTab">
-                <VBox spacing="10" styleClass="tab-content">
-                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                <VBox spacing="15" styleClass="tab-content">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
                     <Label text="Vehicle Registry" styleClass="section-title"/>
 
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <TextField fx:id="searchRegField" promptText="Search by Registration..." prefWidth="250" styleClass="text-field-vis"/>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <TextField fx:id="searchRegField" promptText="Search by Registration..." prefWidth="280" styleClass="text-field-vis"/>
                         <Button fx:id="searchBtn" text="Search" onAction="#handleSearchVehicle" styleClass="secondary-btn"/>
                         <Button fx:id="refreshVehiclesBtn" text="Refresh" onAction="#refreshVehicles" styleClass="secondary-btn"/>
                         <Button fx:id="addVehicleBtn" text="Add Vehicle" onAction="#openAddVehicleDialog" styleClass="primary-btn"/>
@@ -113,12 +132,12 @@
 
                     <TableView fx:id="vehicleTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
                         <columns>
-                            <TableColumn fx:id="vIdCol" text="ID" prefWidth="50"/>
-                            <TableColumn fx:id="vRegCol" text="Reg. Number" prefWidth="130"/>
-                            <TableColumn fx:id="vMakeCol" text="Make" prefWidth="100"/>
-                            <TableColumn fx:id="vModelCol" text="Model" prefWidth="100"/>
-                            <TableColumn fx:id="vYearCol" text="Year" prefWidth="70"/>
-                            <TableColumn fx:id="vOwnerCol" text="Owner" prefWidth="150"/>
+                            <TableColumn fx:id="vIdCol" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="vRegCol" text="Registration Number" prefWidth="150"/>
+                            <TableColumn fx:id="vMakeCol" text="Make" prefWidth="120"/>
+                            <TableColumn fx:id="vModelCol" text="Model" prefWidth="120"/>
+                            <TableColumn fx:id="vYearCol" text="Year" prefWidth="80"/>
+                            <TableColumn fx:id="vOwnerCol" text="Owner" prefWidth="180"/>
                         </columns>
                     </TableView>
                 </VBox>
@@ -126,11 +145,11 @@
 
             <!-- Workshop Tab -->
             <Tab text="Workshop" fx:id="workshopTab">
-                <VBox spacing="10" styleClass="tab-content">
-                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
-                    <Label text="Workshop Service Records" styleClass="section-title"/>
+                <VBox spacing="15" styleClass="tab-content">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                    <Label text="Service Records" styleClass="section-title"/>
 
-                    <HBox spacing="10">
+                    <HBox spacing="12">
                         <Button fx:id="refreshServiceBtn" text="Refresh" onAction="#refreshServiceRecords" styleClass="secondary-btn"/>
                         <Button fx:id="addServiceBtn" text="Add Service Record" onAction="#openAddServiceDialog" styleClass="primary-btn"/>
                         <Button fx:id="deleteServiceBtn" text="Delete" onAction="#handleDeleteService" styleClass="danger-btn"/>
@@ -138,11 +157,11 @@
 
                     <TableView fx:id="serviceTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
                         <columns>
-                            <TableColumn fx:id="sIdCol" text="ID" prefWidth="50"/>
-                            <TableColumn fx:id="sRegCol" text="Registration" prefWidth="130"/>
+                            <TableColumn fx:id="sIdCol" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="sRegCol" text="Registration" prefWidth="140"/>
                             <TableColumn fx:id="sDateCol" text="Service Date" prefWidth="120"/>
-                            <TableColumn fx:id="sTypeCol" text="Type" prefWidth="120"/>
-                            <TableColumn fx:id="sDescCol" text="Description" prefWidth="200"/>
+                            <TableColumn fx:id="sTypeCol" text="Service Type" prefWidth="140"/>
+                            <TableColumn fx:id="sDescCol" text="Description" prefWidth="250"/>
                             <TableColumn fx:id="sCostCol" text="Cost (M)" prefWidth="100"/>
                         </columns>
                     </TableView>
@@ -151,68 +170,63 @@
 
             <!-- Police Tab -->
             <Tab text="Police" fx:id="policeTab">
-                <VBox spacing="10" styleClass="tab-content">
-                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                <VBox spacing="15" styleClass="tab-content">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
                     <Label text="Police Module" styleClass="section-title"/>
 
                     <TabPane tabClosingPolicy="UNAVAILABLE" styleClass="inner-tabs">
 
-                        <!-- Reports Tab -->
-                        <Tab text="Reports">
-                            <VBox spacing="10" styleClass="tab-content">
-                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                                <HBox spacing="10">
+                        <Tab text="Police Reports">
+                            <VBox spacing="12" styleClass="tab-content">
+                                <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                                <HBox spacing="12">
                                     <Button fx:id="refreshReportsBtn" text="Refresh" onAction="#refreshPoliceReports" styleClass="secondary-btn"/>
                                     <Button fx:id="addReportBtn" text="Add Report" onAction="#openAddReportDialog" styleClass="primary-btn"/>
                                 </HBox>
                                 <TableView fx:id="reportTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
                                     <columns>
-                                        <TableColumn fx:id="prIdCol" text="ID" prefWidth="50"/>
-                                        <TableColumn fx:id="prRegCol" text="Reg. Number" prefWidth="130"/>
-                                        <TableColumn fx:id="prDateCol" text="Date" prefWidth="110"/>
-                                        <TableColumn fx:id="prTypeCol" text="Type" prefWidth="100"/>
-                                        <TableColumn fx:id="prDescCol" text="Description" prefWidth="200"/>
-                                        <TableColumn fx:id="prOfficerCol" text="Officer" prefWidth="130"/>
+                                        <TableColumn fx:id="prIdCol" text="ID" prefWidth="60"/>
+                                        <TableColumn fx:id="prRegCol" text="Registration" prefWidth="140"/>
+                                        <TableColumn fx:id="prDateCol" text="Date" prefWidth="120"/>
+                                        <TableColumn fx:id="prTypeCol" text="Type" prefWidth="130"/>
+                                        <TableColumn fx:id="prDescCol" text="Description" prefWidth="250"/>
+                                        <TableColumn fx:id="prOfficerCol" text="Officer" prefWidth="150"/>
                                     </columns>
                                 </TableView>
                             </VBox>
                         </Tab>
 
-                        <!-- Violations Tab -->
-
-                        <!-- Violations Tab -->
                         <Tab text="Violations">
-                            <VBox spacing="10" styleClass="tab-content">
-                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                                <HBox spacing="10">
+                            <VBox spacing="12" styleClass="tab-content">
+                                <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                                <HBox spacing="12">
                                     <Button fx:id="refreshViolationsBtn" text="Refresh" onAction="#refreshViolations" styleClass="secondary-btn"/>
                                     <Button fx:id="addViolationBtn" text="Add Violation" onAction="#openAddViolationDialog" styleClass="primary-btn"/>
                                     <Button fx:id="markPaidBtn" text="Mark as Paid" onAction="#handleMarkPaid" styleClass="success-btn"/>
                                 </HBox>
                                 <TableView fx:id="violationTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
                                     <columns>
-                                        <TableColumn fx:id="vlIdCol" text="ID" prefWidth="50"/>
-                                        <TableColumn fx:id="vlRegCol" text="Reg. Number" prefWidth="130"/>
-                                        <TableColumn fx:id="vlDateCol" text="Date" prefWidth="110"/>
-                                        <TableColumn fx:id="vlTypeCol" text="Type" prefWidth="130"/>
+                                        <TableColumn fx:id="vlIdCol" text="ID" prefWidth="60"/>
+                                        <TableColumn fx:id="vlRegCol" text="Registration" prefWidth="140"/>
+                                        <TableColumn fx:id="vlDateCol" text="Date" prefWidth="120"/>
+                                        <TableColumn fx:id="vlTypeCol" text="Violation Type" prefWidth="150"/>
                                         <TableColumn fx:id="vlFineCol" text="Fine (M)" prefWidth="100"/>
                                         <TableColumn fx:id="vlStatusCol" text="Status" prefWidth="100"/>
                                     </columns>
                                 </TableView>
                             </VBox>
                         </Tab>
-
                     </TabPane>
                 </VBox>
             </Tab>
 
             <!-- Customers Tab -->
             <Tab text="Customers" fx:id="customersTab">
-                <VBox spacing="10" styleClass="tab-content">
-                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                <VBox spacing="15" styleClass="tab-content">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
                     <Label text="Customer Registry" styleClass="section-title"/>
 
-                    <HBox spacing="10">
+                    <HBox spacing="12">
                         <Button fx:id="refreshCustomersBtn" text="Refresh" onAction="#refreshCustomers" styleClass="secondary-btn"/>
                         <Button fx:id="addCustomerBtn" text="Add Customer" onAction="#openAddCustomerDialog" styleClass="primary-btn"/>
                         <Button fx:id="deleteCustomerBtn" text="Delete" onAction="#handleDeleteCustomer" styleClass="danger-btn"/>
@@ -220,11 +234,61 @@
 
                     <TableView fx:id="customerTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
                         <columns>
-                            <TableColumn fx:id="cIdCol" text="ID" prefWidth="50"/>
-                            <TableColumn fx:id="cNameCol" text="Name" prefWidth="160"/>
-                            <TableColumn fx:id="cAddressCol" text="Address" prefWidth="200"/>
-                            <TableColumn fx:id="cPhoneCol" text="Phone" prefWidth="130"/>
-                            <TableColumn fx:id="cEmailCol" text="Email" prefWidth="180"/>
+                            <TableColumn fx:id="cIdCol" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="cNameCol" text="Full Name" prefWidth="180"/>
+                            <TableColumn fx:id="cAddressCol" text="Address" prefWidth="250"/>
+                            <TableColumn fx:id="cPhoneCol" text="Phone" prefWidth="140"/>
+                            <TableColumn fx:id="cEmailCol" text="Email" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Insurance Tab -->
+            <Tab text="Insurance" fx:id="insuranceTab">
+                <VBox spacing="15" styleClass="tab-content">
+                    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+                    <Label text="Insurance Management" styleClass="section-title"/>
+
+                    <HBox spacing="20">
+                        <VBox styleClass="stat-card-mini" HBox.hgrow="ALWAYS">
+                            <Label text="Active Policies" styleClass="stat-label-mini"/>
+                            <Label fx:id="activePoliciesLabel" text="0" styleClass="stat-value-mini" style="-fx-text-fill: #10b981;"/>
+                        </VBox>
+                        <VBox styleClass="stat-card-mini" HBox.hgrow="ALWAYS">
+                            <Label text="Expiring Soon" styleClass="stat-label-mini"/>
+                            <Label fx:id="expiringPoliciesLabel" text="0" styleClass="stat-value-mini" style="-fx-text-fill: #f59e0b;"/>
+                        </VBox>
+                        <VBox styleClass="stat-card-mini" HBox.hgrow="ALWAYS">
+                            <Label text="Expired Policies" styleClass="stat-label-mini"/>
+                            <Label fx:id="expiredPoliciesLabel" text="0" styleClass="stat-value-mini" style="-fx-text-fill: #ef4444;"/>
+                        </VBox>
+                        <VBox styleClass="stat-card-mini" HBox.hgrow="ALWAYS">
+                            <Label text="Total Premium" styleClass="stat-label-mini"/>
+                            <Label fx:id="totalPremiumLabel" text="M0" styleClass="stat-value-mini" style="-fx-text-fill: #8b5cf6;"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <Button fx:id="refreshInsuranceBtn" text="Refresh" onAction="#refreshInsurance" styleClass="secondary-btn"/>
+                        <Button fx:id="addInsuranceBtn" text="Add Insurance" onAction="#openAddInsuranceDialog" styleClass="primary-btn"/>
+                        <Button fx:id="editInsuranceBtn" text="Edit" onAction="#handleEditInsurance" styleClass="secondary-btn"/>
+                        <Button fx:id="deleteInsuranceBtn" text="Delete" onAction="#handleDeleteInsurance" styleClass="danger-btn"/>
+                    </HBox>
+
+                    <TableView fx:id="insuranceTable" VBox.vgrow="ALWAYS" styleClass="table-view-vis">
+                        <columns>
+                            <TableColumn fx:id="insIdCol" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="insRegCol" text="Registration" prefWidth="130"/>
+                            <TableColumn fx:id="insVehicleCol" text="Vehicle" prefWidth="160"/>
+                            <TableColumn fx:id="insProviderCol" text="Provider" prefWidth="180"/>
+                            <TableColumn fx:id="insPolicyCol" text="Policy Number" prefWidth="160"/>
+                            <TableColumn fx:id="insStartDateCol" text="Start Date" prefWidth="110"/>
+                            <TableColumn fx:id="insExpiryDateCol" text="Expiry Date" prefWidth="110"/>
+                            <TableColumn fx:id="insCoverageCol" text="Coverage" prefWidth="120"/>
+                            <TableColumn fx:id="insAmountCol" text="Amount (M)" prefWidth="120"/>
+                            <TableColumn fx:id="insStatusCol" text="Status" prefWidth="100"/>
                         </columns>
                     </TableView>
                 </VBox>
@@ -234,8 +298,8 @@
     </center>
 
     <bottom>
-        <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="10">
-            <padding><Insets top="5" right="15" bottom="5" left="15"/></padding>
+        <HBox styleClass="status-bar" alignment="CENTER_LEFT" spacing="15">
+            <padding><Insets top="8" right="20" bottom="8" left="20"/></padding>
             <Label fx:id="statusLabel" text="Ready" styleClass="status-label"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label fx:id="dateTimeLabel" text="" styleClass="status-label"/>

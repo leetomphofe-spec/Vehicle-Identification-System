@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -20,20 +22,31 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
+    @FXML private ImageView logoImage;
 
     private final CustomerDAO customerDAO = new CustomerDAO();
 
     @FXML
     public void initialize() {
+        // Load logo
+        try {
+            Image logo = new Image(getClass().getResourceAsStream("/com/vis/images/logo.png"));
+            if (logo != null && !logo.isError()) {
+                logoImage.setImage(logo);
+            }
+        } catch (Exception e) {
+            System.out.println("Logo not found, continuing without logo");
+        }
+
         DropShadow shadow = new DropShadow();
-        shadow.setColor(Color.web("#0ea5e9"));
-        shadow.setRadius(12);
-        shadow.setSpread(0.4);
+        shadow.setColor(Color.web("#3b82f6"));
+        shadow.setRadius(15);
+        shadow.setSpread(0.3);
         loginButton.setEffect(shadow);
 
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.4), loginButton);
+        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), loginButton);
         fade.setFromValue(1.0);
-        fade.setToValue(0.55);
+        fade.setToValue(0.6);
         fade.setCycleCount(FadeTransition.INDEFINITE);
         fade.setAutoReverse(true);
         fade.play();
@@ -75,13 +88,16 @@ public class LoginController {
             DashboardController dc = loader.getController();
             dc.initData(username, role);
 
-            Scene scene = new Scene(root, 1100, 700);
+            Scene scene = new Scene(root, 700, 600);
             scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setResizable(true);
-            stage.setTitle("VIS - Dashboard");
+            stage.setTitle("Vehicle Identification System - Dashboard");
+            stage.setMinWidth(700);
+            stage.setMinHeight(600);
+            stage.show();
         } catch (Exception e) {
             errorLabel.setText("Failed to load dashboard: " + e.getMessage());
             e.printStackTrace();

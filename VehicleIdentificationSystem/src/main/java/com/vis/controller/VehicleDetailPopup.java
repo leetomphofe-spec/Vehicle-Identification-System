@@ -24,14 +24,14 @@ public class VehicleDetailPopup {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/VehicleDetailPopup.fxml"));
             Parent root = loader.load();
 
-            // Full screen size - 1000x700
-            Scene scene = new Scene(root, 500, 300);
-            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
-
+            // CORRECT: Get VehicleDetailPopupController, NOT DashboardController
             VehicleDetailPopupController controller = loader.getController();
             controller.setVehicle(vehicle);
             controller.setUserRole(userRole);
             controller.setOnDataChanged(onDataChanged);
+
+            Scene scene = new Scene(root, 600, 500);
+            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -39,7 +39,6 @@ public class VehicleDetailPopup {
             stage.setScene(scene);
             stage.setMinWidth(900);
             stage.setMinHeight(650);
-            stage.setMaximized(false);
             controller.setStage(stage);
 
             controller.loadVehicleData();

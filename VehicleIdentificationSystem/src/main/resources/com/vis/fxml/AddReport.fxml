@@ -7,32 +7,47 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.vis.controller.AddReportController"
       spacing="15" styleClass="root-pane"
-      prefWidth="430" prefHeight="380">
+      prefWidth="500" prefHeight="500">
 
     <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
 
     <Label text="Add Police Report" styleClass="section-title"/>
 
     <GridPane hgap="10" vgap="12">
-        <Label text="Vehicle ID" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="vehicleIdField" promptText="Vehicle ID"
-                   GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="220" styleClass="text-field-vis"/>
+        <!-- Vehicle Selection Dropdown -->
+        <Label text="Select Vehicle" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="vehicleCombo" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                  prefWidth="280" promptText="Select a vehicle..." styleClass="combo-vis"/>
 
-        <Label text="Report Date" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextField fx:id="dateField" promptText="YYYY-MM-DD"
+        <!-- Vehicle ID (auto-filled) -->
+        <Label text="Vehicle ID" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="vehicleIdField" promptText="Auto-filled" editable="false"
                    GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Report Type" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
-        <ComboBox fx:id="typeCombo" GridPane.rowIndex="2" GridPane.columnIndex="1"
-                  prefWidth="220" styleClass="combo-vis"/>
+        <!-- Registration Number (auto-filled) -->
+        <Label text="Registration Number" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextField fx:id="regNumberField" promptText="Auto-filled" editable="false"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
-        <Label text="Description" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
-        <TextArea fx:id="descField" promptText="Details..."
-                  GridPane.rowIndex="3" GridPane.columnIndex="1" prefHeight="60" styleClass="text-field-vis"/>
+        <!-- Report Date with DatePicker -->
+        <Label text="Report Date" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
+        <DatePicker fx:id="datePicker" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                    prefWidth="280" promptText="Select report date" styleClass="date-picker-vis"/>
 
-        <Label text="Officer Name" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <!-- Report Type Dropdown -->
+        <Label text="Report Type" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
+        <ComboBox fx:id="typeCombo" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                  prefWidth="280" styleClass="combo-vis"/>
+
+        <!-- Description -->
+        <Label text="Description" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
+        <TextArea fx:id="descField" promptText="Report details..."
+                  GridPane.rowIndex="5" GridPane.columnIndex="1" prefHeight="80" styleClass="text-field-vis"/>
+
+        <!-- Officer Name -->
+        <Label text="Officer Name" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
         <TextField fx:id="officerField" promptText="Officer full name"
-                   GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
+                   GridPane.rowIndex="6" GridPane.columnIndex="1" styleClass="text-field-vis"/>
     </GridPane>
 
     <Label fx:id="errorLabel" text="" styleClass="error-label"/>

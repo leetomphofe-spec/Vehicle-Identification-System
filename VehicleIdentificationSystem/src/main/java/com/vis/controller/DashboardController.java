@@ -16,9 +16,11 @@ import javafx.scene.effect.DropShadow;
 import javafx.stage.*;
 import javafx.util.Duration;
 
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class DashboardController {
 
@@ -30,6 +32,7 @@ public class DashboardController {
     @FXML private Label totalCustomersLabel;
     @FXML private Label totalReportsLabel;
     @FXML private Label totalViolationsLabel;
+    @FXML private Label totalInsuranceLabel;
     @FXML private ProgressBar progressBar;
     @FXML private ProgressIndicator progressIndicator;
     @FXML private VBox activityLogBox;
@@ -40,6 +43,7 @@ public class DashboardController {
     @FXML private Tab workshopTab;
     @FXML private Tab policeTab;
     @FXML private Tab customersTab;
+    @FXML private Tab insuranceTab;
 
     // Vehicle table components
     @FXML private TableView<Vehicle> vehicleTable;
@@ -111,14 +115,46 @@ public class DashboardController {
     @FXML private Button addCustomerBtn;
     @FXML private Button deleteCustomerBtn;
 
+    // Insurance components
+    @FXML private TableView<Insurance> insuranceTable;
+    @FXML private TableColumn<Insurance, Integer> insIdCol;
+    @FXML private TableColumn<Insurance, String> insRegCol;
+    @FXML private TableColumn<Insurance, String> insVehicleCol;
+    @FXML private TableColumn<Insurance, String> insProviderCol;
+    @FXML private TableColumn<Insurance, String> insPolicyCol;
+    @FXML private TableColumn<Insurance, String> insStartDateCol;
+    @FXML private TableColumn<Insurance, String> insExpiryDateCol;
+    @FXML private TableColumn<Insurance, String> insCoverageCol;
+    @FXML private TableColumn<Insurance, Double> insAmountCol;
+    @FXML private TableColumn<Insurance, String> insStatusCol;
+
+    // Insurance buttons
+    @FXML private Button refreshInsuranceBtn;
+    @FXML private Button addInsuranceBtn;
+    @FXML private Button editInsuranceBtn;
+    @FXML private Button deleteInsuranceBtn;
+
+    // Insurance statistics labels
+    @FXML private Label activePoliciesLabel;
+    @FXML private Label expiringPoliciesLabel;
+    @FXML private Label expiredPoliciesLabel;
+    @FXML private Label totalPremiumLabel;
+
     // DAOs
     private final VehicleDAO vehicleDAO = new VehicleDAO();
     private final CustomerDAO customerDAO = new CustomerDAO();
     private final PoliceDAO policeDAO = new PoliceDAO();
     private final WorkshopDAO workshopDAO = new WorkshopDAO();
+    private final ActivityLogDAO activityLogDAO = new ActivityLogDAO();
+    private final InsuranceDAO insuranceDAO = new InsuranceDAO();
 
     private String currentUser = "Admin";
     private String currentRole = "ADMIN";
+
+    private ObservableList<String> allActivities = FXCollections.observableArrayList();
+    private final int ITEMS_PER_PAGE = 8;
+
+
 
     @FXML
     public void initialize() {
@@ -127,10 +163,10 @@ public class DashboardController {
         setupPoliceTable();
         setupViolationTable();
         setupCustomerTable();
-        setupActivityLog();
+        setupInsuranceTable();
         setupDateTime();
-        setupPagination();
         setupProgressAnimation();
+        setupPagination();
         loadAllData();
     }
 
@@ -143,9 +179,6 @@ public class DashboardController {
 
     private void applyRoleBasedAccess() {
         System.out.println("Applying role-based access for: " + currentRole);
-
-        // First disable all action buttons by default
-        disableAllActionButtons();
 
         switch (currentRole) {
             case "ADMIN":
@@ -161,195 +194,103 @@ public class DashboardController {
         }
     }
 
-    private void disableAllActionButtons() {
-        // Vehicle buttons
-        if (addVehicleBtn != null) addVehicleBtn.setDisable(true);
-        if (deleteVehicleBtn != null) deleteVehicleBtn.setDisable(true);
-        if (addVehicleBtn != null) addVehicleBtn.setVisible(false);
-        if (deleteVehicleBtn != null) deleteVehicleBtn.setVisible(false);
-
-        // Service buttons
-        if (addServiceBtn != null) addServiceBtn.setDisable(true);
-        if (deleteServiceBtn != null) deleteServiceBtn.setDisable(true);
-        if (addServiceBtn != null) addServiceBtn.setVisible(false);
-        if (deleteServiceBtn != null) deleteServiceBtn.setVisible(false);
-
-        // Report buttons
-        if (addReportBtn != null) addReportBtn.setDisable(true);
-        if (addReportBtn != null) addReportBtn.setVisible(false);
-
-        // Violation buttons
-        if (addViolationBtn != null) addViolationBtn.setDisable(true);
-        if (markPaidBtn != null) markPaidBtn.setDisable(true);
-        if (addViolationBtn != null) addViolationBtn.setVisible(false);
-
-        // Customer buttons
-        if (addCustomerBtn != null) addCustomerBtn.setDisable(true);
-        if (deleteCustomerBtn != null) deleteCustomerBtn.setDisable(true);
-        if (addCustomerBtn != null) addCustomerBtn.setVisible(false);
-        if (deleteCustomerBtn != null) deleteCustomerBtn.setVisible(false);
-    }
-
     private void enableAdminAccess() {
-        // Vehicle buttons - full access
-        if (addVehicleBtn != null) {
-            addVehicleBtn.setDisable(false);
-            addVehicleBtn.setVisible(true);
-        }
-        if (deleteVehicleBtn != null) {
-            deleteVehicleBtn.setDisable(false);
-            deleteVehicleBtn.setVisible(true);
-        }
+        // Vehicle buttons
+        if (addVehicleBtn != null) { addVehicleBtn.setDisable(false); addVehicleBtn.setVisible(true); }
+        if (deleteVehicleBtn != null) { deleteVehicleBtn.setDisable(false); deleteVehicleBtn.setVisible(true); }
         if (searchBtn != null) searchBtn.setDisable(false);
         if (refreshVehiclesBtn != null) refreshVehiclesBtn.setDisable(false);
 
-        // Service buttons - full access
-        if (addServiceBtn != null) {
-            addServiceBtn.setDisable(false);
-            addServiceBtn.setVisible(true);
-        }
-        if (deleteServiceBtn != null) {
-            deleteServiceBtn.setDisable(false);
-            deleteServiceBtn.setVisible(true);
-        }
+        // Service buttons
+        if (addServiceBtn != null) { addServiceBtn.setDisable(false); addServiceBtn.setVisible(true); }
+        if (deleteServiceBtn != null) { deleteServiceBtn.setDisable(false); deleteServiceBtn.setVisible(true); }
         if (refreshServiceBtn != null) refreshServiceBtn.setDisable(false);
 
-        // Report buttons - full access
-        if (addReportBtn != null) {
-            addReportBtn.setDisable(false);
-            addReportBtn.setVisible(true);
-        }
+        // Report buttons
+        if (addReportBtn != null) { addReportBtn.setDisable(false); addReportBtn.setVisible(true); }
         if (refreshReportsBtn != null) refreshReportsBtn.setDisable(false);
 
-        // Violation buttons - full access
-        if (addViolationBtn != null) {
-            addViolationBtn.setDisable(false);
-            addViolationBtn.setVisible(true);
-        }
-        if (markPaidBtn != null) {
-            markPaidBtn.setDisable(false);
-            markPaidBtn.setVisible(true);
-        }
+        // Violation buttons
+        if (addViolationBtn != null) { addViolationBtn.setDisable(false); addViolationBtn.setVisible(true); }
+        if (markPaidBtn != null) { markPaidBtn.setDisable(false); markPaidBtn.setVisible(true); }
         if (refreshViolationsBtn != null) refreshViolationsBtn.setDisable(false);
 
-        // Customer buttons - full access
-        if (addCustomerBtn != null) {
-            addCustomerBtn.setDisable(false);
-            addCustomerBtn.setVisible(true);
-        }
-        if (deleteCustomerBtn != null) {
-            deleteCustomerBtn.setDisable(false);
-            deleteCustomerBtn.setVisible(true);
-        }
+        // Customer buttons
+        if (addCustomerBtn != null) { addCustomerBtn.setDisable(false); addCustomerBtn.setVisible(true); }
+        if (deleteCustomerBtn != null) { deleteCustomerBtn.setDisable(false); deleteCustomerBtn.setVisible(true); }
         if (refreshCustomersBtn != null) refreshCustomersBtn.setDisable(false);
+
+        // Insurance buttons - ADMIN only
+        if (addInsuranceBtn != null) { addInsuranceBtn.setDisable(false); addInsuranceBtn.setVisible(true); }
+        if (editInsuranceBtn != null) { editInsuranceBtn.setDisable(false); editInsuranceBtn.setVisible(true); }
+        if (deleteInsuranceBtn != null) { deleteInsuranceBtn.setDisable(false); deleteInsuranceBtn.setVisible(true); }
+        if (refreshInsuranceBtn != null) refreshInsuranceBtn.setDisable(false);
     }
 
     private void enablePoliceAccess() {
         // Vehicle buttons - view only
-        if (addVehicleBtn != null) {
-            addVehicleBtn.setDisable(true);
-            addVehicleBtn.setVisible(false);
-        }
-        if (deleteVehicleBtn != null) {
-            deleteVehicleBtn.setDisable(true);
-            deleteVehicleBtn.setVisible(false);
-        }
+        if (addVehicleBtn != null) { addVehicleBtn.setDisable(true); addVehicleBtn.setVisible(false); }
+        if (deleteVehicleBtn != null) { deleteVehicleBtn.setDisable(true); deleteVehicleBtn.setVisible(false); }
         if (searchBtn != null) searchBtn.setDisable(false);
         if (refreshVehiclesBtn != null) refreshVehiclesBtn.setDisable(false);
 
         // Service buttons - view only
-        if (addServiceBtn != null) {
-            addServiceBtn.setDisable(true);
-            addServiceBtn.setVisible(false);
-        }
-        if (deleteServiceBtn != null) {
-            deleteServiceBtn.setDisable(true);
-            deleteServiceBtn.setVisible(false);
-        }
+        if (addServiceBtn != null) { addServiceBtn.setDisable(true); addServiceBtn.setVisible(false); }
+        if (deleteServiceBtn != null) { deleteServiceBtn.setDisable(true); deleteServiceBtn.setVisible(false); }
         if (refreshServiceBtn != null) refreshServiceBtn.setDisable(false);
 
         // Report buttons - can add reports
-        if (addReportBtn != null) {
-            addReportBtn.setDisable(false);
-            addReportBtn.setVisible(true);
-        }
+        if (addReportBtn != null) { addReportBtn.setDisable(false); addReportBtn.setVisible(true); }
         if (refreshReportsBtn != null) refreshReportsBtn.setDisable(false);
 
-        // Violation buttons - can mark paid only
-        if (addViolationBtn != null) {
-            addViolationBtn.setDisable(true);
-            addViolationBtn.setVisible(false);
-        }
-        if (markPaidBtn != null) {
-            markPaidBtn.setDisable(false);
-            markPaidBtn.setVisible(true);
-        }
+        // Violation buttons - POLICE CAN ADD AND MARK PAID
+        if (addViolationBtn != null) { addViolationBtn.setDisable(false); addViolationBtn.setVisible(true); }
+        if (markPaidBtn != null) { markPaidBtn.setDisable(false); markPaidBtn.setVisible(true); }
         if (refreshViolationsBtn != null) refreshViolationsBtn.setDisable(false);
 
         // Customer buttons - view only
-        if (addCustomerBtn != null) {
-            addCustomerBtn.setDisable(true);
-            addCustomerBtn.setVisible(false);
-        }
-        if (deleteCustomerBtn != null) {
-            deleteCustomerBtn.setDisable(true);
-            deleteCustomerBtn.setVisible(false);
-        }
+        if (addCustomerBtn != null) { addCustomerBtn.setDisable(true); addCustomerBtn.setVisible(false); }
+        if (deleteCustomerBtn != null) { deleteCustomerBtn.setDisable(true); deleteCustomerBtn.setVisible(false); }
         if (refreshCustomersBtn != null) refreshCustomersBtn.setDisable(false);
+
+        // Insurance buttons - POLICE view only
+        if (addInsuranceBtn != null) { addInsuranceBtn.setDisable(true); addInsuranceBtn.setVisible(false); }
+        if (editInsuranceBtn != null) { editInsuranceBtn.setDisable(true); editInsuranceBtn.setVisible(false); }
+        if (deleteInsuranceBtn != null) { deleteInsuranceBtn.setDisable(true); deleteInsuranceBtn.setVisible(false); }
+        if (refreshInsuranceBtn != null) refreshInsuranceBtn.setDisable(false);
     }
 
     private void enableUserAccess() {
         // Vehicle buttons - view only
-        if (addVehicleBtn != null) {
-            addVehicleBtn.setDisable(true);
-            addVehicleBtn.setVisible(false);
-        }
-        if (deleteVehicleBtn != null) {
-            deleteVehicleBtn.setDisable(true);
-            deleteVehicleBtn.setVisible(false);
-        }
+        if (addVehicleBtn != null) { addVehicleBtn.setDisable(true); addVehicleBtn.setVisible(false); }
+        if (deleteVehicleBtn != null) { deleteVehicleBtn.setDisable(true); deleteVehicleBtn.setVisible(false); }
         if (searchBtn != null) searchBtn.setDisable(false);
         if (refreshVehiclesBtn != null) refreshVehiclesBtn.setDisable(false);
 
         // Service buttons - view only
-        if (addServiceBtn != null) {
-            addServiceBtn.setDisable(true);
-            addServiceBtn.setVisible(false);
-        }
-        if (deleteServiceBtn != null) {
-            deleteServiceBtn.setDisable(true);
-            deleteServiceBtn.setVisible(false);
-        }
+        if (addServiceBtn != null) { addServiceBtn.setDisable(true); addServiceBtn.setVisible(false); }
+        if (deleteServiceBtn != null) { deleteServiceBtn.setDisable(true); deleteServiceBtn.setVisible(false); }
         if (refreshServiceBtn != null) refreshServiceBtn.setDisable(false);
 
         // Report buttons - view only
-        if (addReportBtn != null) {
-            addReportBtn.setDisable(true);
-            addReportBtn.setVisible(false);
-        }
+        if (addReportBtn != null) { addReportBtn.setDisable(true); addReportBtn.setVisible(false); }
         if (refreshReportsBtn != null) refreshReportsBtn.setDisable(false);
 
         // Violation buttons - view only
-        if (addViolationBtn != null) {
-            addViolationBtn.setDisable(true);
-            addViolationBtn.setVisible(false);
-        }
-        if (markPaidBtn != null) {
-            markPaidBtn.setDisable(true);
-            markPaidBtn.setVisible(false);
-        }
+        if (addViolationBtn != null) { addViolationBtn.setDisable(true); addViolationBtn.setVisible(false); }
+        if (markPaidBtn != null) { markPaidBtn.setDisable(true); markPaidBtn.setVisible(false); }
         if (refreshViolationsBtn != null) refreshViolationsBtn.setDisable(false);
 
         // Customer buttons - view only
-        if (addCustomerBtn != null) {
-            addCustomerBtn.setDisable(true);
-            addCustomerBtn.setVisible(false);
-        }
-        if (deleteCustomerBtn != null) {
-            deleteCustomerBtn.setDisable(true);
-            deleteCustomerBtn.setVisible(false);
-        }
+        if (addCustomerBtn != null) { addCustomerBtn.setDisable(true); addCustomerBtn.setVisible(false); }
+        if (deleteCustomerBtn != null) { deleteCustomerBtn.setDisable(true); deleteCustomerBtn.setVisible(false); }
         if (refreshCustomersBtn != null) refreshCustomersBtn.setDisable(false);
+
+        // Insurance buttons - USER view only
+        if (addInsuranceBtn != null) { addInsuranceBtn.setDisable(true); addInsuranceBtn.setVisible(false); }
+        if (editInsuranceBtn != null) { editInsuranceBtn.setDisable(true); editInsuranceBtn.setVisible(false); }
+        if (deleteInsuranceBtn != null) { deleteInsuranceBtn.setDisable(true); deleteInsuranceBtn.setVisible(false); }
+        if (refreshInsuranceBtn != null) refreshInsuranceBtn.setDisable(false);
     }
 
     private void setupVehicleTable() {
@@ -381,19 +322,6 @@ public class DashboardController {
         sTypeCol.setCellValueFactory(new PropertyValueFactory<>("serviceType"));
         sDescCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         sCostCol.setCellValueFactory(new PropertyValueFactory<>("cost"));
-
-        serviceTable.setRowFactory(tv -> {
-            TableRow<ServiceRecord> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    ServiceRecord selectedService = row.getItem();
-                    if (selectedService != null) {
-                        openVehicleFromServiceRecord(selectedService);
-                    }
-                }
-            });
-            return row;
-        });
     }
 
     private void setupPoliceTable() {
@@ -413,22 +341,8 @@ public class DashboardController {
         vlFineCol.setCellValueFactory(new PropertyValueFactory<>("fineAmount"));
         vlStatusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        // Color rows based on status
-        violationTable.setRowFactory(tv -> {
-            TableRow<Violation> row = new TableRow<>();
-            row.itemProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal != null) {
-                    if ("Unpaid".equalsIgnoreCase(newVal.getStatus())) {
-                        row.setStyle("-fx-background-color: #7f1d1d;");
-                    } else if ("Paid".equalsIgnoreCase(newVal.getStatus())) {
-                        row.setStyle("-fx-background-color: #14532d;");
-                    } else {
-                        row.setStyle("");
-                    }
-                }
-            });
-            return row;
-        });
+        // REMOVE or COMMENT OUT any rowFactory code that adds colors
+        // The table should now use the default CSS styling
     }
 
     private void setupCustomerTable() {
@@ -439,46 +353,17 @@ public class DashboardController {
         cEmailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
     }
 
-    private void openVehicleFromServiceRecord(ServiceRecord service) {
-        try {
-            Vehicle vehicle = vehicleDAO.getVehicleById(service.getVehicleId());
-            if (vehicle != null) {
-                openVehicleDetailPopup(vehicle);
-            } else {
-                showAlert(Alert.AlertType.WARNING, "Vehicle Not Found", "Could not find vehicle details.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load vehicle: " + e.getMessage());
-        }
-    }
-
-    private void openVehicleFromPoliceReport(PoliceReport report) {
-        try {
-            Vehicle vehicle = vehicleDAO.getVehicleById(report.getVehicleId());
-            if (vehicle != null) {
-                openVehicleDetailPopup(vehicle);
-            } else {
-                showAlert(Alert.AlertType.WARNING, "Vehicle Not Found", "Could not find vehicle details.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load vehicle: " + e.getMessage());
-        }
-    }
-
-    private void openVehicleFromViolation(Violation violation) {
-        try {
-            Vehicle vehicle = vehicleDAO.getVehicleById(violation.getVehicleId());
-            if (vehicle != null) {
-                openVehicleDetailPopup(vehicle);
-            } else {
-                showAlert(Alert.AlertType.WARNING, "Vehicle Not Found", "Could not find vehicle details.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load vehicle: " + e.getMessage());
-        }
+    private void setupInsuranceTable() {
+        insIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        insRegCol.setCellValueFactory(new PropertyValueFactory<>("registrationNumber"));
+        insVehicleCol.setCellValueFactory(new PropertyValueFactory<>("vehicleInfo"));
+        insProviderCol.setCellValueFactory(new PropertyValueFactory<>("provider"));
+        insPolicyCol.setCellValueFactory(new PropertyValueFactory<>("policyNumber"));
+        insStartDateCol.setCellValueFactory(new PropertyValueFactory<>("startDate"));
+        insExpiryDateCol.setCellValueFactory(new PropertyValueFactory<>("expiryDate"));
+        insCoverageCol.setCellValueFactory(new PropertyValueFactory<>("coverageType"));
+        insAmountCol.setCellValueFactory(new PropertyValueFactory<>("coverageAmount"));
+        insStatusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
     }
 
     private void openVehicleDetailPopup(Vehicle vehicle) {
@@ -500,28 +385,6 @@ public class DashboardController {
         }
     }
 
-    private void setupActivityLog() {
-        String[] activities = {
-                "System started", "Admin logged in", "Vehicle A 123 LS checked",
-                "Police report filed for B 456 LS", "Service record added for C 789 LS",
-                "Customer John Mokoena updated", "Violation recorded for D 321 LS",
-                "Violation E 654 LS marked Paid", "Vehicle F 987 LS registered",
-                "Theft report filed for G 111 LS", "Oil change logged for H 222 LS",
-                "New customer Sara Mofolo added", "Database sync completed",
-                "Officer Sgt. Mosotho filed report", "Vehicle I 333 LS searched",
-                "Speeding violation for J 444 LS", "Brake service for A 123 LS",
-                "Insurance query logged", "Pagination loaded",
-                "System health check passed", "Battery replaced on E 654 LS",
-                "Customer David Letsie queried", "Accident report closed"
-        };
-        for (String act : activities) {
-            Label lbl = new Label(act);
-            lbl.getStyleClass().add("activity-item");
-            lbl.setMaxWidth(Double.MAX_VALUE);
-            activityLogBox.getChildren().add(lbl);
-        }
-    }
-
     private void setupDateTime() {
         Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -529,12 +392,6 @@ public class DashboardController {
         }));
         clock.setCycleCount(Animation.INDEFINITE);
         clock.play();
-    }
-
-    private void setupPagination() {
-        pagination.setPageCount(5);
-        pagination.currentPageIndexProperty().addListener((obs, old, nv) ->
-                setStatus("Page " + (nv.intValue() + 1) + " of 5"));
     }
 
     private void setupProgressAnimation() {
@@ -550,37 +407,135 @@ public class DashboardController {
         progressIndicator.setEffect(glow);
     }
 
+    private void setupPagination() {
+        loadActivitiesFromDatabase();
+
+        int totalPages = (int) Math.ceil((double) allActivities.size() / ITEMS_PER_PAGE);
+        if (totalPages == 0) totalPages = 1;
+
+        pagination.setPageCount(totalPages);
+        pagination.setCurrentPageIndex(0);
+
+        pagination.setPageFactory(pageIndex -> {
+            VBox pageBox = new VBox(5);
+            pageBox.setStyle("-fx-background-color: #0f172a; -fx-padding: 10;");
+
+            int start = pageIndex * ITEMS_PER_PAGE;
+            int end = Math.min(start + ITEMS_PER_PAGE, allActivities.size());
+
+            for (int i = start; i < end; i++) {
+                String activity = allActivities.get(i);
+                Label activityLabel = new Label(activity);
+                activityLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-padding: 5; -fx-border-color: #1e293b; -fx-border-width: 0 0 1 0;");
+                activityLabel.setWrapText(true);
+                activityLabel.setMaxWidth(Double.MAX_VALUE);
+                pageBox.getChildren().add(activityLabel);
+            }
+
+            if (pageBox.getChildren().isEmpty()) {
+                Label noDataLabel = new Label("No activity records found");
+                noDataLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
+                pageBox.getChildren().add(noDataLabel);
+            }
+
+            return pageBox;
+        });
+
+        pagination.currentPageIndexProperty().addListener((obs, old, nv) -> {
+            setStatus("Page " + (nv.intValue() + 1) + " of " + pagination.getPageCount());
+        });
+    }
+
+    private void loadActivitiesFromDatabase() {
+        try {
+            allActivities.clear();
+            List<String> activities = activityLogDAO.getAllActivities();
+            allActivities.addAll(activities);
+
+            activityLogBox.getChildren().clear();
+            int count = 0;
+            for (String activity : activities) {
+                if (count++ >= 10) break;
+                Label lbl = new Label(activity);
+                lbl.getStyleClass().add("activity-item");
+                lbl.setMaxWidth(Double.MAX_VALUE);
+                activityLogBox.getChildren().add(lbl);
+            }
+
+            setStatus("Activities loaded: " + activities.size());
+        } catch (SQLException e) {
+            setStatus("Error loading activities: " + e.getMessage());
+            loadFallbackActivities();
+        }
+    }
+
+    private void loadFallbackActivities() {
+        allActivities.clear();
+        String[] fallbackActivities = {
+                "System started - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                "Database connection established",
+                "User " + currentUser + " logged in",
+                "Dashboard initialized",
+                "System ready"
+        };
+        for (String act : fallbackActivities) {
+            allActivities.add(act);
+        }
+    }
+
+    private void logActivity(String activity) {
+        try {
+            activityLogDAO.addActivity(activity, currentUser);
+            loadActivitiesFromDatabase();
+            setupPagination();
+        } catch (SQLException e) {
+            System.err.println("Failed to log activity: " + e.getMessage());
+        }
+    }
+
     private void loadAllData() {
         loadVehicles();
         loadServiceRecords();
         loadPoliceReports();
         loadViolations();
         loadCustomers();
+        loadInsurance();
     }
 
     @FXML
     public void refreshVehicles() {
         loadVehicles();
+        logActivity("Vehicles list refreshed by " + currentUser);
     }
 
     @FXML
     public void refreshServiceRecords() {
         loadServiceRecords();
+        logActivity("Service records refreshed by " + currentUser);
     }
 
     @FXML
     public void refreshPoliceReports() {
         loadPoliceReports();
+        logActivity("Police reports refreshed by " + currentUser);
     }
 
     @FXML
     public void refreshViolations() {
         loadViolations();
+        logActivity("Violations list refreshed by " + currentUser);
     }
 
     @FXML
     public void refreshCustomers() {
         loadCustomers();
+        logActivity("Customers list refreshed by " + currentUser);
+    }
+
+    @FXML
+    public void refreshInsurance() {
+        loadInsurance();
+        logActivity("Insurance policies refreshed by " + currentUser);
     }
 
     private void loadVehicles() {
@@ -590,21 +545,8 @@ public class DashboardController {
             totalVehiclesLabel.setText(String.valueOf(list.size()));
             setStatus("Vehicles loaded: " + list.size());
         } catch (SQLException e) {
-            loadDemoVehicles();
+            setStatus("Error loading vehicles: " + e.getMessage());
         }
-    }
-
-    private void loadDemoVehicles() {
-        ObservableList<Vehicle> demo = FXCollections.observableArrayList(
-                new Vehicle(1, "A 123 LS", "Toyota", "Corolla", 2018, 1),
-                new Vehicle(2, "B 456 LS", "Honda", "Civic", 2020, 2),
-                new Vehicle(3, "C 789 LS", "Ford", "Ranger", 2019, 3),
-                new Vehicle(4, "D 321 LS", "Hyundai", "i20", 2021, 4),
-                new Vehicle(5, "E 654 LS", "Nissan", "Navara", 2017, 5));
-        demo.forEach(v -> v.setOwnerName("Demo Owner"));
-        vehicleTable.setItems(demo);
-        totalVehiclesLabel.setText(String.valueOf(demo.size()));
-        setStatus("Demo mode - no DB connection");
     }
 
     private void loadServiceRecords() {
@@ -613,7 +555,7 @@ public class DashboardController {
             serviceTable.setItems(records);
             setStatus("Service records loaded: " + records.size());
         } catch (SQLException e) {
-            setStatus("Workshop: " + e.getMessage());
+            setStatus("Workshop error: " + e.getMessage());
         }
     }
 
@@ -623,7 +565,7 @@ public class DashboardController {
             reportTable.setItems(rpts);
             totalReportsLabel.setText(String.valueOf(rpts.size()));
         } catch (SQLException e) {
-            setStatus("Police: " + e.getMessage());
+            setStatus("Police error: " + e.getMessage());
         }
     }
 
@@ -633,7 +575,7 @@ public class DashboardController {
             violationTable.setItems(vls);
             totalViolationsLabel.setText(String.valueOf(vls.size()));
         } catch (SQLException e) {
-            setStatus("Violations: " + e.getMessage());
+            setStatus("Violations error: " + e.getMessage());
         }
     }
 
@@ -643,7 +585,24 @@ public class DashboardController {
             customerTable.setItems(list);
             totalCustomersLabel.setText(String.valueOf(list.size()));
         } catch (SQLException e) {
-            setStatus("Customers: " + e.getMessage());
+            setStatus("Customers error: " + e.getMessage());
+        }
+    }
+
+    private void loadInsurance() {
+        try {
+            ObservableList<Insurance> list = insuranceDAO.getAllInsurance();
+            insuranceTable.setItems(list);
+
+            activePoliciesLabel.setText(String.valueOf(insuranceDAO.getActivePoliciesCount()));
+            expiringPoliciesLabel.setText(String.valueOf(insuranceDAO.getExpiringPoliciesCount()));
+            expiredPoliciesLabel.setText(String.valueOf(insuranceDAO.getExpiredPoliciesCount()));
+            totalPremiumLabel.setText(String.format("M%.2f", insuranceDAO.getTotalPremium()));
+            totalInsuranceLabel.setText(String.valueOf(insuranceDAO.getActivePoliciesCount()));
+
+            setStatus("Insurance policies loaded: " + list.size());
+        } catch (SQLException e) {
+            setStatus("Insurance error: " + e.getMessage());
         }
     }
 
@@ -660,6 +619,7 @@ public class DashboardController {
             if (v != null) {
                 vehicleTable.setItems(FXCollections.observableArrayList(v));
                 setStatus("Found: " + v.getRegistrationNumber());
+                logActivity("Searched for vehicle: " + reg);
             } else {
                 showAlert(Alert.AlertType.INFORMATION, "Not Found", "No vehicle found with registration: " + reg);
                 vehicleTable.setItems(FXCollections.observableArrayList());
@@ -695,6 +655,7 @@ public class DashboardController {
                     vehicleDAO.hardDeleteVehicle(selected.getId());
                     loadVehicles();
                     setStatus("Vehicle deleted: " + selected.getRegistrationNumber());
+                    logActivity("Vehicle deleted: " + selected.getRegistrationNumber() + " by " + currentUser);
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Vehicle deleted successfully.");
                 } catch (SQLException e) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete: " + e.getMessage());
@@ -727,6 +688,7 @@ public class DashboardController {
                     customerDAO.deleteCustomer(selected.getId());
                     loadCustomers();
                     setStatus("Customer deleted: " + selected.getName());
+                    logActivity("Customer deleted: " + selected.getName() + " by " + currentUser);
                 } catch (SQLException e) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete: " + e.getMessage());
                 }
@@ -758,6 +720,7 @@ public class DashboardController {
                     workshopDAO.deleteServiceRecord(selected.getId());
                     loadServiceRecords();
                     setStatus("Service record deleted.");
+                    logActivity("Service record deleted for vehicle: " + selected.getRegNumber() + " by " + currentUser);
                 } catch (SQLException e) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete: " + e.getMessage());
                 }
@@ -794,6 +757,7 @@ public class DashboardController {
                     policeDAO.markViolationPaid(selected.getId());
                     loadViolations();
                     setStatus("Violation marked as Paid.");
+                    logActivity("Violation #" + selected.getId() + " marked as paid by " + currentUser);
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Violation marked as paid.");
                 } catch (SQLException e) {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to update: " + e.getMessage());
@@ -804,8 +768,8 @@ public class DashboardController {
 
     @FXML
     public void openAddViolationDialog() {
-        if (!currentRole.equals("ADMIN")) {
-            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can add violations.");
+        if (!currentRole.equals("ADMIN") && !currentRole.equals("POLICE")) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN and POLICE can add violations.");
             return;
         }
 
@@ -817,9 +781,10 @@ public class DashboardController {
             controller.setOnViolationAdded(() -> {
                 loadViolations();
                 setStatus("Violation added successfully");
+                logActivity("New violation added by " + currentUser);
             });
 
-            Scene scene = new Scene(root, 450, 380);
+            Scene scene = new Scene(root, 450, 400);
             scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
             Stage stage = new Stage();
@@ -843,6 +808,7 @@ public class DashboardController {
         }
         openDialog("/com/vis/fxml/AddVehicle.fxml", "Add Vehicle", 550, 650);
         loadVehicles();
+        logActivity("New vehicle added by " + currentUser);
     }
 
     @FXML
@@ -853,6 +819,7 @@ public class DashboardController {
         }
         openDialog("/com/vis/fxml/AddService.fxml", "Add Service Record", 430, 380);
         loadServiceRecords();
+        logActivity("New service record added by " + currentUser);
     }
 
     @FXML
@@ -863,6 +830,7 @@ public class DashboardController {
         }
         openDialog("/com/vis/fxml/AddReport.fxml", "Add Police Report", 430, 380);
         loadPoliceReports();
+        logActivity("New police report added by " + currentUser);
     }
 
     @FXML
@@ -873,11 +841,132 @@ public class DashboardController {
         }
         openDialog("/com/vis/fxml/AddCustomer.fxml", "Add Customer", 420, 340);
         loadCustomers();
+        logActivity("New customer added by " + currentUser);
+    }
+
+    @FXML
+    public void openAddInsuranceDialog() {
+        if (!currentRole.equals("ADMIN")) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can add insurance policies.");
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/AddInsurance.fxml"));
+            Parent root = loader.load();
+
+            AddInsuranceController controller = loader.getController();
+            controller.setOnInsuranceAdded(() -> {
+                loadInsurance();
+                setStatus("Insurance policy added successfully");
+                logActivity("New insurance policy added by " + currentUser);
+            });
+
+            Scene scene = new Scene(root, 500, 550);
+            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Insurance Policy");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            loadInsurance();
+
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open add insurance form: " + e.getMessage());
+        }
+    }
+    @FXML
+    public void handleEditInsurance() {
+        if (!currentRole.equals("ADMIN")) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can edit insurance policies.");
+            return;
+        }
+
+        Insurance selected = insuranceTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select an insurance policy to edit.");
+            return;
+        }
+
+        try {
+            // Use the correct path - note the leading slash
+            String fxmlPath = "/com/vis/fxml/EditInsurance.fxml";
+            System.out.println("Loading FXML from: " + fxmlPath);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+
+            if (getClass().getResource(fxmlPath) == null) {
+                throw new RuntimeException("FXML file not found at: " + fxmlPath);
+            }
+
+            Parent root = loader.load();
+
+            EditInsuranceController controller = loader.getController();
+            controller.setInsurance(selected);
+            controller.setOnInsuranceUpdated(() -> {
+                loadInsurance();
+                setStatus("Insurance policy updated successfully");
+            });
+
+            Scene scene = new Scene(root, 550, 620);
+            scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Edit Insurance Policy");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+
+            loadInsurance();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open edit insurance form: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void handleDeleteInsurance() {
+        if (!currentRole.equals("ADMIN")) {
+            showAlert(Alert.AlertType.WARNING, "Access Denied", "Only ADMIN can delete insurance policies.");
+            return;
+        }
+
+        Insurance selected = insuranceTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select an insurance policy to delete.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirm Delete");
+        confirm.setHeaderText("Delete Insurance Policy");
+        confirm.setContentText("Are you sure you want to delete policy: " + selected.getPolicyNumber() +
+                " for vehicle " + selected.getRegistrationNumber() + "?");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    insuranceDAO.deleteInsurance(selected.getId());
+                    loadInsurance();
+                    setStatus("Insurance policy deleted");
+                    logActivity("Insurance policy deleted: " + selected.getPolicyNumber() + " by " + currentUser);
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Insurance policy deleted.");
+                } catch (SQLException e) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete: " + e.getMessage());
+                }
+            }
+        });
     }
 
     @FXML
     public void showDashboard() {
         mainTabPane.getSelectionModel().select(0);
+        loadActivitiesFromDatabase();
+        setupPagination();
     }
 
     @FXML
@@ -911,19 +1000,29 @@ public class DashboardController {
         mainTabPane.getSelectionModel().select(4);
     }
 
+
+
+    @FXML
+    public void showInsurance() {
+        mainTabPane.getSelectionModel().select(5);
+        refreshInsurance();
+    }
+
     @FXML
     public void showAbout() {
         showAlert(Alert.AlertType.INFORMATION, "About VIS",
-                "Vehicle Identification System v1.0\nLimkokwing University Lesotho\nObject Oriented Programming II\nBuilt with JavaFX + PostgreSQL");
+                "Vehicle Identification System v2.0\nLimkokwing University Lesotho\nObject Oriented Programming II\nBuilt with JavaFX + PostgreSQL\n\nFeatures:\n- Dynamic Activity Log from Database\n- Pagination with 8 items per page\n- Role-based Access Control\n- Full CRUD Operations\n- Insurance Management Module");
     }
 
     @FXML
     public void handleExit() {
+        logActivity("User " + currentUser + " logged out");
         Platform.exit();
     }
 
     @FXML
     public void handleLogout() {
+        logActivity("User " + currentUser + " logged out");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/Login.fxml"));
             Parent root = loader.load();

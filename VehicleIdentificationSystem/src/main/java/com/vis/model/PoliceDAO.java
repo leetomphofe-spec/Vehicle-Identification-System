@@ -76,10 +76,9 @@ public class PoliceDAO {
         return list;
     }
 
+    // Add this method to PoliceDAO.java if not already present
     public void addViolation(Violation v) throws SQLException {
-        // Updated WITHOUT description column
-        String sql = "INSERT INTO Violation(vehicle_id, violation_date, violation_type, fine_amount, status) " +
-                "VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO Violation(vehicle_id, violation_date, violation_type, fine_amount, status) VALUES(?,?,?,?,?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, v.getVehicleId());
@@ -90,6 +89,8 @@ public class PoliceDAO {
             ps.executeUpdate();
         }
     }
+
+
 
     public void updateViolation(Violation v) throws SQLException {
         // Updated WITHOUT description column

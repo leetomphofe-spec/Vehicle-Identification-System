@@ -92,7 +92,24 @@ CREATE DATABASE vis_db;
 \i src/main/resources/schema.sql
 
 4. Login Credentials (from Users table)
-Username	Password	Role
-admin	admin123	ADMIN
-police	police123	POLICE
-user	user123	USER
+## Login Credentials
+| Role | Username | Password |
+|------|----------|----------|
+| ADMIN | admin | admin123 |
+| POLICE | police | police123 |
+| USER | user | user123 |
+
+## Database Setup
+1. Create PostgreSQL database
+2. Run schema.sql
+3. Run procedures_views.sql
+4. Update DatabaseConnection.java with your credentials
+
+## How to Run
+1. Clone repository
+2. Open in IntelliJ IDEA
+3. Configure JavaFX SDK
+4. Run MainApp.java
+
+## GitHub Repository
+https://github.com/leetomphofe-spec/Vehicle-Identification-System

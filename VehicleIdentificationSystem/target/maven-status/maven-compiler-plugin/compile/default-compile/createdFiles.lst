@@ -1,3 +1,6 @@
+com\vis\model\ServiceRecord.class
+com\vis\model\WorkshopDAO.class
+com\vis\MainApp.class
 com\vis\model\Violation.class
 com\vis\model\PoliceDAO.class
 com\vis\controller\AddCustomerController.class
@@ -7,12 +10,9 @@ com\vis\model\Customer.class
 com\vis\model\Vehicle.class
 com\vis\model\CustomerDAO.class
 com\vis\db\DatabaseConnection.class
-com\vis\model\ServiceRecord.class
 com\vis\controller\AddReportController.class
 com\vis\model\BaseEntity.class
-com\vis\model\WorkshopDAO.class
 com\vis\controller\AddVehicleController.class
-com\vis\MainApp.class
 com\vis\model\PoliceReport.class
 com\vis\controller\LoginController.class
 com\vis\controller\DashboardController.class

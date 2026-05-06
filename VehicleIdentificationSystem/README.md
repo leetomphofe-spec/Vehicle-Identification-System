@@ -3,11 +3,11 @@
 | Name | Student ID |
 |------|-----------|
 | Noncebe Roxa | 901019021 |
-| Phoebe Leeto | 901019681 |
+| Mphofe Leeto | 901019681 |
 | Tebello Lerabe | 901019122 |
-| Fumane Ngheku | 901019002 |
+| Fumane Nqheku | 901019002 |
 | Paballo Phuthi | 901019105 |
-| Likomang Eshobosheane | 901019691 |
+| Likomang Qhobosheane | 901019691 |
 
 ---
 
@@ -96,5 +96,3 @@ Username	Password	Role
 admin	admin123	ADMIN
 police	police123	POLICE
 user	user123	USER
-
-

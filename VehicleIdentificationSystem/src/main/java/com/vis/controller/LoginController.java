@@ -38,6 +38,9 @@ public class LoginController {
             System.out.println("Logo not found, continuing without logo");
         }
 
+        // Setup username validation only (password has no restrictions)
+        setupUsernameValidation();
+
         DropShadow shadow = new DropShadow();
         shadow.setColor(Color.web("#3b82f6"));
         shadow.setRadius(15);
@@ -54,16 +57,70 @@ public class LoginController {
         passwordField.setOnAction(e -> handleLogin());
     }
 
+    /**
+     * Setup validation for username field only
+     * Only allows letters (A-Z, a-z)
+     * Maximum 15 characters
+     * No numbers or special characters allowed
+     */
+    private void setupUsernameValidation() {
+        usernameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Check if empty
+            if (newValue.isEmpty()) {
+                usernameField.setStyle("-fx-border-color: #cbd5e1;");
+                errorLabel.setText("");
+                return;
+            }
+
+            // Check length (max 15 characters)
+            if (newValue.length() > 15) {
+                usernameField.setText(oldValue);
+                errorLabel.setText("Username cannot exceed 15 characters.");
+                return;
+            }
+
+            // Check if contains only letters (no numbers, no special characters)
+            if (!newValue.matches("[a-zA-Z]*")) {
+                usernameField.setText(oldValue);
+                errorLabel.setText("Username must contain only letters (A-Z, a-z). No numbers or symbols allowed.");
+                usernameField.setStyle("-fx-border-color: #ef4444;");
+            } else {
+                usernameField.setStyle("-fx-border-color: #22c55e;");
+                errorLabel.setText("");
+            }
+        });
+    }
+
     @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Please enter both username and password.");
+        // Username validation
+        if (username.isEmpty()) {
+            errorLabel.setText("Please enter username.");
             return;
         }
 
+        // Password validation - only check if empty
+        if (password.isEmpty()) {
+            errorLabel.setText("Please enter password.");
+            return;
+        }
+
+        // Validate username contains only letters
+        if (!username.matches("[a-zA-Z]+")) {
+            errorLabel.setText("Username must contain only letters (A-Z, a-z). No numbers or symbols.");
+            return;
+        }
+
+        // Validate username length (max 15 characters)
+        if (username.length() > 15) {
+            errorLabel.setText("Username cannot exceed 15 characters.");
+            return;
+        }
+
+        // Password has NO restrictions - anything is allowed
         try {
             boolean valid = customerDAO.validateLogin(username, password);
             if (valid) {
@@ -88,14 +145,14 @@ public class LoginController {
             DashboardController dc = loader.getController();
             dc.initData(username, role);
 
-            Scene scene = new Scene(root, 700, 600);
+            Scene scene = new Scene(root, 800, 600);
             scene.getStylesheets().add(getClass().getResource("/com/vis/css/styles.css").toExternalForm());
 
             Stage stage = (Stage) loginButton.getScene().getWindow();
             stage.setScene(scene);
             stage.setResizable(true);
             stage.setTitle("Vehicle Identification System - Dashboard");
-            stage.setMinWidth(700);
+            stage.setMinWidth(800);
             stage.setMinHeight(600);
             stage.show();
         } catch (Exception e) {

@@ -49,6 +49,12 @@ public class AddReportController {
                 populateVehicleDetails(newVal);
             }
         });
+
+        // Setup officer name validation
+        setupOfficerValidation();
+
+        // Setup description validation
+        setupDescriptionValidation();
     }
 
     private void loadVehiclesIntoCombo() {
@@ -89,43 +95,137 @@ public class AddReportController {
         if (vehicle != null) {
             vehicleIdField.setText(String.valueOf(vehicle.getId()));
             regNumberField.setText(vehicle.getRegistrationNumber());
+            vehicleIdField.setStyle("-fx-border-color: #22c55e;");
+            regNumberField.setStyle("-fx-border-color: #22c55e;");
             errorLabel.setText("");
         }
     }
 
+    /**
+     * Officer Name Validation: Only letters and spaces
+     * Prevents numbers and special characters
+     */
+    private void setupOfficerValidation() {
+        officerField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                officerField.setStyle("-fx-border-color: #334155;");
+                errorLabel.setText("");
+                return;
+            }
+
+            // Allow only letters, spaces, and hyphens (for names like "John-Smith")
+            if (!newVal.matches("[a-zA-Z\\s-]*")) {
+                officerField.setText(oldVal);
+                return;
+            }
+
+            if (newVal.length() > 50) {
+                officerField.setText(oldVal);
+                errorLabel.setText("Officer name cannot exceed 50 characters.");
+                return;
+            }
+
+            officerField.setStyle("-fx-border-color: #22c55e;");
+            errorLabel.setText("");
+        });
+    }
+
+    /**
+     * Description Validation: Letters, numbers, spaces, basic punctuation
+     */
+    private void setupDescriptionValidation() {
+        descField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                descField.setStyle("-fx-border-color: #334155;");
+                return;
+            }
+
+            // Allow letters, numbers, spaces, commas, periods, hyphens, apostrophes
+            if (!newVal.matches("[a-zA-Z0-9\\s,\\.\\-']*")) {
+                descField.setText(oldVal);
+                return;
+            }
+
+            if (newVal.length() > 500) {
+                descField.setText(oldVal);
+                errorLabel.setText("Description cannot exceed 500 characters.");
+                return;
+            }
+
+            descField.setStyle("-fx-border-color: #22c55e;");
+            errorLabel.setText("");
+        });
+    }
+
     @FXML
     private void handleSave() {
+        // Validate vehicle selection
+        Vehicle selectedVehicle = vehicleCombo.getSelectionModel().getSelectedItem();
+        if (selectedVehicle == null) {
+            errorLabel.setText("Please select a vehicle.");
+            vehicleCombo.requestFocus();
+            return;
+        }
+
+        int vehicleId = selectedVehicle.getId();
+
+        // Validate report date
+        LocalDate reportDate = datePicker.getValue();
+        if (reportDate == null) {
+            errorLabel.setText("Please select a report date.");
+            datePicker.requestFocus();
+            return;
+        }
+
+        // Validate date is not in the future
+        if (reportDate.isAfter(LocalDate.now())) {
+            errorLabel.setText("Report date cannot be in the future.");
+            datePicker.requestFocus();
+            return;
+        }
+
+        String date = reportDate.toString();
+
+        // Validate report type
+        String type = typeCombo.getValue();
+        if (type == null || type.isEmpty()) {
+            errorLabel.setText("Please select a report type.");
+            typeCombo.requestFocus();
+            return;
+        }
+
+        // Validate officer name
+        String officer = officerField.getText().trim();
+        if (officer.isEmpty()) {
+            errorLabel.setText("Please enter officer name.");
+            officerField.requestFocus();
+            return;
+        }
+
+        // Officer name validation - only letters, spaces, hyphens
+        if (!officer.matches("[a-zA-Z\\s-]+")) {
+            errorLabel.setText("Officer name must contain only letters, spaces, and hyphens.");
+            officerField.requestFocus();
+            return;
+        }
+
+        // Get description (optional)
+        String desc = descField.getText().trim();
+
         try {
-            Vehicle selectedVehicle = vehicleCombo.getSelectionModel().getSelectedItem();
-            if (selectedVehicle == null) {
-                errorLabel.setText("Please select a vehicle.");
-                return;
-            }
-
-            int vehicleId = selectedVehicle.getId();
-
-            LocalDate reportDate = datePicker.getValue();
-            if (reportDate == null) {
-                errorLabel.setText("Please select a report date.");
-                return;
-            }
-            String date = reportDate.toString();
-
-            String type = typeCombo.getValue();
-            String desc = descField.getText().trim();
-            String officer = officerField.getText().trim();
-
-            if (date.isEmpty() || officer.isEmpty()) {
-                errorLabel.setText("Date and officer name are required.");
-                return;
-            }
-
             PoliceReport rpt = new PoliceReport(0, vehicleId, date, type, desc, officer, selectedVehicle.getRegistrationNumber());
             policeDAO.addReport(rpt);
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Police report saved for vehicle: " + selectedVehicle.getRegistrationNumber());
+            showAlert(Alert.AlertType.INFORMATION, "Success",
+                    "Police report saved for vehicle: " + selectedVehicle.getRegistrationNumber());
             closeWindow();
 
+        } catch (SQLException e) {
+            if (e.getMessage().contains("foreign key")) {
+                errorLabel.setText("Invalid vehicle selected.");
+            } else {
+                errorLabel.setText("Database Error: " + e.getMessage());
+            }
         } catch (Exception e) {
             errorLabel.setText("Error: " + e.getMessage());
         }

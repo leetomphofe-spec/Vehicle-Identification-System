@@ -134,13 +134,111 @@ public class VehicleDetailPopupController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+        // Enable maximize/minimize buttons
+        if (stage != null) {
+            stage.setResizable(true);
+            stage.setMinWidth(800);
+            stage.setMinHeight(600);
+        }
     }
 
     @FXML
     public void initialize() {
         setupTables();
         setupVehicleListView();
+        setupEditFieldValidations();
         applyRoleBasedAccess();
+    }
+
+    /**
+     * Setup validations for edit fields
+     */
+    private void setupEditFieldValidations() {
+        // Engine validation - letters, numbers, spaces, dots, hyphens
+        engineField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                engineField.setStyle("-fx-border-color: #cbd5e1;");
+                return;
+            }
+            if (!newVal.matches("[a-zA-Z0-9\\s\\.-]*")) {
+                engineField.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > 50) {
+                engineField.setText(oldVal);
+                showAlert(Alert.AlertType.WARNING, "Validation", "Engine info cannot exceed 50 characters.");
+                return;
+            }
+            engineField.setStyle("-fx-border-color: #22c55e;");
+        });
+
+        // Transmission validation - letters, numbers, spaces, hyphens
+        transmissionField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                transmissionField.setStyle("-fx-border-color: #cbd5e1;");
+                return;
+            }
+            if (!newVal.matches("[a-zA-Z0-9\\s-]*")) {
+                transmissionField.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > 40) {
+                transmissionField.setText(oldVal);
+                showAlert(Alert.AlertType.WARNING, "Validation", "Transmission info cannot exceed 40 characters.");
+                return;
+            }
+            transmissionField.setStyle("-fx-border-color: #22c55e;");
+        });
+
+        // Fuel Type validation - letters only
+        fuelTypeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                fuelTypeField.setStyle("-fx-border-color: #cbd5e1;");
+                return;
+            }
+            if (!newVal.matches("[a-zA-Z]*")) {
+                fuelTypeField.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > 20) {
+                fuelTypeField.setText(oldVal);
+                showAlert(Alert.AlertType.WARNING, "Validation", "Fuel type cannot exceed 20 characters.");
+                return;
+            }
+            fuelTypeField.setStyle("-fx-border-color: #22c55e;");
+        });
+
+        // Mileage validation - numbers only
+        mileageField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                mileageField.setStyle("-fx-border-color: #cbd5e1;");
+                return;
+            }
+            if (!newVal.matches("\\d*")) {
+                mileageField.setText(oldVal);
+                return;
+            }
+            if (newVal.length() > 7) {
+                mileageField.setText(oldVal);
+                showAlert(Alert.AlertType.WARNING, "Validation", "Mileage cannot exceed 7 digits.");
+                return;
+            }
+            mileageField.setStyle("-fx-border-color: #22c55e;");
+        });
+
+        // Description validation
+        descriptionTextArea.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                descriptionTextArea.setStyle("-fx-border-color: #cbd5e1;");
+                return;
+            }
+            if (newVal.length() > 1000) {
+                descriptionTextArea.setText(oldVal);
+                showAlert(Alert.AlertType.WARNING, "Validation", "Description cannot exceed 1000 characters.");
+                return;
+            }
+            descriptionTextArea.setStyle("-fx-border-color: #22c55e;");
+        });
     }
 
     private void setupVehicleListView() {
@@ -408,15 +506,15 @@ public class VehicleDetailPopupController {
         rDescCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         rOfficerCol.setCellValueFactory(new PropertyValueFactory<>("officerName"));
 
-        // Color rows for violations
+        // Color rows for violations - using subtle colors
         violationTable.setRowFactory(tv -> {
             TableRow<Violation> row = new TableRow<>();
             row.itemProperty().addListener((obs, old, newVal) -> {
                 if (newVal != null) {
                     if ("Unpaid".equalsIgnoreCase(newVal.getStatus())) {
-                        row.setStyle("-fx-background-color: #fef3c7;");
+                        row.setStyle("-fx-background-color: #fef3c7;"); // Soft amber
                     } else if ("Paid".equalsIgnoreCase(newVal.getStatus())) {
-                        row.setStyle("-fx-background-color: #dbeafe;");
+                        row.setStyle("-fx-background-color: #dbeafe;"); // Soft blue
                     } else {
                         row.setStyle("");
                     }
@@ -644,10 +742,16 @@ public class VehicleDetailPopupController {
             return;
         }
 
+        String description = descriptionTextArea.getText().trim();
+        if (description.length() > 1000) {
+            showAlert(Alert.AlertType.WARNING, "Validation", "Description cannot exceed 1000 characters.");
+            return;
+        }
+
         try {
-            currentVehicle.setDescription(descriptionTextArea.getText());
+            currentVehicle.setDescription(description);
             vehicleDAO.updateVehicle(currentVehicle);
-            descriptionLabel.setText(descriptionTextArea.getText());
+            descriptionLabel.setText(description);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Description updated");
             if (onDataChanged != null) onDataChanged.run();
         } catch (SQLException ex) {
@@ -663,20 +767,52 @@ public class VehicleDetailPopupController {
         }
 
         try {
-            currentVehicle.setEngine(engineField.getText());
-            currentVehicle.setTransmission(transmissionField.getText());
-            currentVehicle.setFuelType(fuelTypeField.getText());
+            String engine = engineField.getText().trim();
+            String transmission = transmissionField.getText().trim();
+            String fuelType = fuelTypeField.getText().trim();
+
+            // Validate engine
+            if (!engine.isEmpty() && !engine.matches("[a-zA-Z0-9\\s\\.-]*")) {
+                showAlert(Alert.AlertType.WARNING, "Validation", "Engine contains invalid characters.");
+                return;
+            }
+
+            // Validate transmission
+            if (!transmission.isEmpty() && !transmission.matches("[a-zA-Z0-9\\s-]*")) {
+                showAlert(Alert.AlertType.WARNING, "Validation", "Transmission contains invalid characters.");
+                return;
+            }
+
+            // Validate fuel type
+            if (!fuelType.isEmpty() && !fuelType.matches("[a-zA-Z]*")) {
+                showAlert(Alert.AlertType.WARNING, "Validation", "Fuel type must contain only letters.");
+                return;
+            }
+
+            currentVehicle.setEngine(engine);
+            currentVehicle.setTransmission(transmission);
+            currentVehicle.setFuelType(fuelType);
+
             int mileage = 0;
             if (!mileageField.getText().trim().isEmpty()) {
-                mileage = Integer.parseInt(mileageField.getText());
+                String mileageText = mileageField.getText().trim();
+                if (!mileageText.matches("\\d+")) {
+                    showAlert(Alert.AlertType.WARNING, "Validation", "Mileage must contain only numbers.");
+                    return;
+                }
+                mileage = Integer.parseInt(mileageText);
+                if (mileage > 9999999) {
+                    showAlert(Alert.AlertType.WARNING, "Validation", "Mileage cannot exceed 9,999,999 km.");
+                    return;
+                }
             }
             currentVehicle.setMileage(mileage);
             vehicleDAO.updateVehicle(currentVehicle);
 
-            engineValue.setText(currentVehicle.getEngine().isEmpty() ? "Not specified" : currentVehicle.getEngine());
-            transmissionValue.setText(currentVehicle.getTransmission().isEmpty() ? "Not specified" : currentVehicle.getTransmission());
-            fuelTypeValue.setText(currentVehicle.getFuelType().isEmpty() ? "Not specified" : currentVehicle.getFuelType());
-            mileageValue.setText(currentVehicle.getMileage() > 0 ? String.format("%,d km", currentVehicle.getMileage()) : "Not recorded");
+            engineValue.setText(engine.isEmpty() ? "Not specified" : engine);
+            transmissionValue.setText(transmission.isEmpty() ? "Not specified" : transmission);
+            fuelTypeValue.setText(fuelType.isEmpty() ? "Not specified" : fuelType);
+            mileageValue.setText(mileage > 0 ? String.format("%,d km", mileage) : "Not recorded");
 
             showAlert(Alert.AlertType.INFORMATION, "Success", "Technical specifications updated");
             if (onDataChanged != null) onDataChanged.run();
@@ -733,7 +869,6 @@ public class VehicleDetailPopupController {
             return;
         }
 
-        // Open edit vehicle dialog
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/vis/fxml/EditVehicle.fxml"));
             Parent root = loader.load();
@@ -741,7 +876,6 @@ public class VehicleDetailPopupController {
             EditVehicleController controller = loader.getController();
             controller.setVehicle(currentVehicle);
             controller.setOnVehicleUpdated(() -> {
-                // Reload vehicle data after update
                 loadVehicleData();
                 if (onDataChanged != null) onDataChanged.run();
             });
@@ -753,7 +887,10 @@ public class VehicleDetailPopupController {
             editStage.initModality(Modality.APPLICATION_MODAL);
             editStage.setTitle("Edit Vehicle - " + currentVehicle.getRegistrationNumber());
             editStage.setScene(scene);
-            editStage.setResizable(false);
+            editStage.setResizable(true);  // Allow maximize/minimize
+            editStage.setMinWidth(550);
+            editStage.setMinHeight(650);
+            controller.setStage(editStage);  // Pass stage reference
             editStage.showAndWait();
 
         } catch (Exception e) {
@@ -761,7 +898,6 @@ public class VehicleDetailPopupController {
             showAlert(Alert.AlertType.ERROR, "Error", "Could not open edit form: " + e.getMessage());
         }
     }
-
     @FXML
     private void handleDeleteVehicle() {
         if (!"ADMIN".equals(userRole)) {

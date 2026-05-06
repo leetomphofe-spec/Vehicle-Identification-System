@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class AddViolationController {
 
@@ -43,10 +42,7 @@ public class AddViolationController {
 
         // Set today's date as default in date picker
         datePicker.setValue(LocalDate.now());
-
-        // Setup date format
         datePicker.setPromptText("YYYY-MM-DD");
-        datePicker.setShowWeekNumbers(false);
 
         // Load vehicles into dropdown
         loadVehiclesIntoCombo();
@@ -57,6 +53,12 @@ public class AddViolationController {
                 populateVehicleDetails(newVal);
             }
         });
+
+        // Setup fine amount validation (NUMBERS ONLY - no decimals, no letters)
+        setupFineValidation();
+
+        // Setup description validation
+        setupDescriptionValidation();
     }
 
     private void loadVehiclesIntoCombo() {
@@ -64,7 +66,6 @@ public class AddViolationController {
             ObservableList<Vehicle> vehicles = vehicleDAO.getAllVehicles();
             vehicleCombo.setItems(vehicles);
 
-            // Set cell factory to display registration number and make/model
             vehicleCombo.setCellFactory(param -> new ListCell<Vehicle>() {
                 @Override
                 protected void updateItem(Vehicle vehicle, boolean empty) {
@@ -77,7 +78,6 @@ public class AddViolationController {
                 }
             });
 
-            // Set button cell to display selected item
             vehicleCombo.setButtonCell(new ListCell<Vehicle>() {
                 @Override
                 protected void updateItem(Vehicle vehicle, boolean empty) {
@@ -101,12 +101,67 @@ public class AddViolationController {
             regNumberField.setText(vehicle.getRegistrationNumber());
             vehicleDetailsField.setText(vehicle.getMake() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")");
 
-            // Style for success
             vehicleIdField.setStyle("-fx-border-color: #22c55e;");
             regNumberField.setStyle("-fx-border-color: #22c55e;");
             vehicleDetailsField.setStyle("-fx-border-color: #22c55e;");
             errorLabel.setText("");
         }
+    }
+
+    /**
+     * Fine Validation: ONLY NUMBERS allowed (0-9)
+     * No decimal points, no letters, no special characters
+     */
+    private void setupFineValidation() {
+        fineField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                fineField.setStyle("-fx-border-color: #334155;");
+                errorLabel.setText("");
+                return;
+            }
+
+            // Allow ONLY numbers (0-9) - NO decimal points, NO letters, NO special characters
+            if (!newVal.matches("\\d*")) {
+                fineField.setText(oldVal);
+                return;
+            }
+
+            // Max length (10 digits)
+            if (newVal.length() > 10) {
+                fineField.setText(oldVal);
+                errorLabel.setText("Fine amount cannot exceed 10 digits.");
+                return;
+            }
+
+            fineField.setStyle("-fx-border-color: #22c55e;");
+            errorLabel.setText("");
+        });
+    }
+
+    /**
+     * Description Validation
+     */
+    private void setupDescriptionValidation() {
+        descField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.isEmpty()) {
+                descField.setStyle("-fx-border-color: #334155;");
+                return;
+            }
+
+            if (!newVal.matches("[a-zA-Z0-9\\s,\\.\\-']*")) {
+                descField.setText(oldVal);
+                return;
+            }
+
+            if (newVal.length() > 500) {
+                descField.setText(oldVal);
+                errorLabel.setText("Description cannot exceed 500 characters.");
+                return;
+            }
+
+            descField.setStyle("-fx-border-color: #22c55e;");
+            errorLabel.setText("");
+        });
     }
 
     public void setOnViolationAdded(Runnable onViolationAdded) {
@@ -115,44 +170,89 @@ public class AddViolationController {
 
     @FXML
     private void handleSave() {
+        // Clear previous error
+        errorLabel.setText("");
+
+        // Validate vehicle selection
+        Vehicle selectedVehicle = vehicleCombo.getSelectionModel().getSelectedItem();
+        if (selectedVehicle == null) {
+            errorLabel.setText("Please select a vehicle.");
+            vehicleCombo.requestFocus();
+            return;
+        }
+
+        int vehicleId = selectedVehicle.getId();
+        String regNumber = selectedVehicle.getRegistrationNumber();
+
+        // Validate violation date
+        LocalDate violationDate = datePicker.getValue();
+        if (violationDate == null) {
+            errorLabel.setText("Please select a violation date.");
+            datePicker.requestFocus();
+            return;
+        }
+
+        // Validate date is not in the future
+        if (violationDate.isAfter(LocalDate.now())) {
+            errorLabel.setText("Violation date cannot be in the future.");
+            datePicker.requestFocus();
+            return;
+        }
+
+        String date = violationDate.toString();
+
+        // Validate violation type
+        String type = typeCombo.getValue();
+        if (type == null || type.isEmpty()) {
+            errorLabel.setText("Please select a violation type.");
+            typeCombo.requestFocus();
+            return;
+        }
+
+        // Validate fine amount - MUST BE NUMBERS ONLY
+        String fineText = fineField.getText().trim();
+        if (fineText.isEmpty()) {
+            errorLabel.setText("Please enter the fine amount.");
+            fineField.requestFocus();
+            return;
+        }
+
+        // Check if fine contains only numbers
+        if (!fineText.matches("\\d+")) {
+            errorLabel.setText("Fine amount must contain only numbers (0-9). No decimals or letters allowed.");
+            fineField.requestFocus();
+            return;
+        }
+
+        int fine;
         try {
-            // Get selected vehicle
-            Vehicle selectedVehicle = vehicleCombo.getSelectionModel().getSelectedItem();
-            if (selectedVehicle == null) {
-                errorLabel.setText("Please select a vehicle.");
+            fine = Integer.parseInt(fineText);
+            if (fine < 0) {
+                errorLabel.setText("Fine amount cannot be negative.");
+                fineField.requestFocus();
                 return;
             }
-
-            int vehicleId = selectedVehicle.getId();
-            String regNumber = selectedVehicle.getRegistrationNumber();
-
-            // Get date from date picker
-            LocalDate violationDate = datePicker.getValue();
-            if (violationDate == null) {
-                errorLabel.setText("Please select a violation date.");
+            if (fine > 999999) {
+                errorLabel.setText("Fine amount cannot exceed 999,999.");
+                fineField.requestFocus();
                 return;
             }
-            String date = violationDate.toString();
+        } catch (NumberFormatException e) {
+            errorLabel.setText("Please enter a valid fine amount (numbers only).");
+            fineField.requestFocus();
+            return;
+        }
 
-            String type = typeCombo.getValue();
-            double fine = Double.parseDouble(fineField.getText().trim());
-            String description = descField != null ? descField.getText().trim() : "";
+        // Get description (optional)
+        String description = descField.getText().trim();
 
-            if (type == null || type.isEmpty()) {
-                errorLabel.setText("Violation type is required.");
-                return;
-            }
-
-            if (fine <= 0) {
-                errorLabel.setText("Fine amount must be greater than 0.");
-                return;
-            }
-
+        try {
             Violation violation = new Violation(0, vehicleId, date, type, fine, "Unpaid", regNumber);
             violation.setDescription(description);
             policeDAO.addViolation(violation);
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Violation recorded successfully for vehicle: " + regNumber);
+            showAlert(Alert.AlertType.INFORMATION, "Success",
+                    "Violation recorded successfully for vehicle: " + regNumber);
 
             if (onViolationAdded != null) {
                 onViolationAdded.run();
@@ -160,8 +260,12 @@ public class AddViolationController {
 
             closeWindow();
 
-        } catch (NumberFormatException e) {
-            errorLabel.setText("Fine amount must be a valid number.");
+        } catch (SQLException e) {
+            if (e.getMessage().contains("foreign key")) {
+                errorLabel.setText("Invalid vehicle selected.");
+            } else {
+                errorLabel.setText("Database Error: " + e.getMessage());
+            }
         } catch (Exception e) {
             errorLabel.setText("Error: " + e.getMessage());
         }

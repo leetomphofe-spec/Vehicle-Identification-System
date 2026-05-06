@@ -16,19 +16,19 @@
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
         <GridPane hgap="10" vgap="12">
             <Label text="Registration No.*" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="regField" promptText="e.g. A 123 LS"
+            <TextField fx:id="regField" promptText="A 123 LS"
                        GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="250" styleClass="text-field-vis"/>
 
             <Label text="Make*" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="makeField" promptText="e.g. Toyota"
+            <TextField fx:id="makeField" promptText="Toyota"
                        GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Model*" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="modelField" promptText="e.g. Corolla"
+            <TextField fx:id="modelField" promptText="Corolla"
                        GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Year*" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="yearField" promptText="e.g. 2020"
+            <TextField fx:id="yearField" promptText="2020"
                        GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Owner ID*" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="field-label"/>
@@ -36,7 +36,7 @@
                        GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Color" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="colorField" promptText="e.g. Red, Blue, Silver"
+            <TextField fx:id="colorField" promptText="Red, Blue, Silver"
                        GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Status" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="field-label"/>
@@ -44,23 +44,23 @@
                       prefWidth="250" styleClass="combo-vis"/>
 
             <Label text="Engine" GridPane.rowIndex="7" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="engineField" promptText="e.g. 2.0L Turbo"
+            <TextField fx:id="engineField" promptText="2.0L 4-cylinder"
                        GridPane.rowIndex="7" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Transmission" GridPane.rowIndex="8" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="transmissionField" promptText="e.g. 6-Speed Automatic"
+            <TextField fx:id="transmissionField" promptText="6-Speed Manual"
                        GridPane.rowIndex="8" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Fuel Type" GridPane.rowIndex="9" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="fuelTypeField" promptText="e.g. Petrol, Diesel"
+            <TextField fx:id="fuelTypeField" promptText="Petrol, Diesel, Hybrid"
                        GridPane.rowIndex="9" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Mileage (km)" GridPane.rowIndex="10" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextField fx:id="mileageField" promptText="e.g. 45000"
+            <TextField fx:id="mileageField" promptText="45000"
                        GridPane.rowIndex="10" GridPane.columnIndex="1" styleClass="text-field-vis"/>
 
             <Label text="Description" GridPane.rowIndex="11" GridPane.columnIndex="0" styleClass="field-label"/>
-            <TextArea fx:id="descriptionArea" promptText="Vehicle description..."
+            <TextArea fx:id="descriptionArea" promptText="Vehicle description"
                       GridPane.rowIndex="11" GridPane.columnIndex="1" prefHeight="80" styleClass="text-field-vis"/>
         </GridPane>
     </ScrollPane>
